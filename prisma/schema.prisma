@@ -14,26 +14,29 @@ datasource db {
 }
 
 model User {
-  id             String     @id @default(uuid())
-  email          String     @unique
-  name           String
-  password       String
-  role           Role       @default(USER)
-  
+  id            String    @id
+  email         String    @unique
+  name          String
+  password      String?
+  emailVerified DateTime?
+  image         String?
+  imagePublicId String?
+  role          Role      @default(USER)
+
   // Projects the user owns
-  ownedProjects  Project[]  @relation("ProjectOwner")
+  ownedProjects Project[] @relation("ProjectOwner")
 
   // Projects the user is working on
   assignedProjects ProjectAssignment[]
-  
+
   // Tickets the user created
   ticketsCreated Ticket[] @relation("CreatedBy")
 
   // Tickets assigned to the user
   ticketsAssignedTo Ticket[] @relation("AssignedTo")
 
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   Account Account[]
 
@@ -41,48 +44,48 @@ model User {
 }
 
 model Project {
-  id          String           @id @default(uuid())
+  id          String @id
   name        String
   description String
-  owner       User             @relation("ProjectOwner", fields: [ownerId], references: [id])
+  owner       User   @relation("ProjectOwner", fields: [ownerId], references: [id])
   ownerId     String
 
   // Users working on the project
-  members     ProjectAssignment[]
+  members ProjectAssignment[]
 
   // Tickets related to the project
-  tickets     Ticket[]
+  tickets Ticket[]
 
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Ticket {
-  id          String    @id @default(uuid())
+  id          String         @id
   title       String
   description String
-  status      TicketStatus @default(OPEN)
+  status      TicketStatus   @default(OPEN)
   priority    TicketPriority @default(MEDIUM)
-  
-  project     Project   @relation(fields: [projectId], references: [id])
-  projectId   String
-  
-  assignedTo  User?     @relation(name: "AssignedTo", fields: [assignedToId], references: [id]) 
+
+  project   Project @relation(fields: [projectId], references: [id])
+  projectId String
+
+  assignedTo   User?   @relation(name: "AssignedTo", fields: [assignedToId], references: [id])
   assignedToId String?
 
-  createdBy   User      @relation(name: "CreatedBy", fields: [createdById], references: [id])
+  createdBy   User   @relation(name: "CreatedBy", fields: [createdById], references: [id])
   createdById String
-  
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model ProjectAssignment {
   userId    String
   projectId String
 
-  user      User    @relation(fields: [userId], references: [id])
-  project   Project @relation(fields: [projectId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+  project Project @relation(fields: [projectId], references: [id])
 
   @@id([userId, projectId])
 }
@@ -110,43 +113,41 @@ enum TicketPriority {
   CRITICAL
 }
 
-
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String  @map("user_id")
-  type               String
-  provider           String
-  providerAccountId  String  @map("provider_account_id")
-  refresh_token      String? @db.Text
-  access_token       String? @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String? @db.Text
-  session_state      String?
- 
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
   @@unique([provider, providerAccountId])
   @@map("accounts")
 }
- 
+
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique @map("session_token")
   userId       String   @map("user_id")
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
   @@map("sessions")
 }
 
- 
 model VerificationToken {
   identifier String
   token      String
   expires    DateTime
- 
+
   @@unique([identifier, token])
   @@map("verification_tokens")
 }

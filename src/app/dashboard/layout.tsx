@@ -1,3 +1,5 @@
+import { Header } from "@/components/features/header";
+
 type DashboardLayoutProps = {
   children: React.ReactNode;
 };
@@ -5,7 +7,7 @@ type DashboardLayoutProps = {
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   return (
     <div>
-      <header>LOGO</header>
+      <Header />
       <main>{children}</main>
     </div>
   );

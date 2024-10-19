@@ -15,8 +15,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { FaGoogle, FaGithub } from "react-icons/fa";
 import Link from "next/link";
+import { OAuthForm } from "./oauth-form";
 
 export const LoginForm = () => {
   const form = useForm<z.infer<typeof loginFormSchema>>({
@@ -79,16 +79,7 @@ export const LoginForm = () => {
       </div>
 
       <CardContent>
-        <div className="grid gap-4">
-          <Button variant="outline" size="lg">
-            <FaGoogle />
-            Login With Google
-          </Button>
-          <Button variant="outline" size="lg">
-            <FaGithub />
-            Login With GitHub
-          </Button>
-        </div>
+        <OAuthForm />
       </CardContent>
 
       <div className="flex items-center gap-5 p-6 pt-0">
