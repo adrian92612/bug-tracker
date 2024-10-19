@@ -1,3 +1,5 @@
+import { AuthHeader } from "@/components/features/auth/auth-header";
+
 type AuthLayoutProps = {
   children: React.ReactNode;
 };
@@ -5,10 +7,8 @@ type AuthLayoutProps = {
 const AuthLayout = ({ children }: AuthLayoutProps) => {
   return (
     <>
-      <header>
-        <h1>LOGO</h1>
-      </header>
-      <main>{children}</main>
+      <AuthHeader />
+      <main className="min-h-dvh grid place-items-center px-2">{children}</main>
     </>
   );
 };
