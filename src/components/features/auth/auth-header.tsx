@@ -7,7 +7,6 @@ import { usePathname } from "next/navigation";
 export const AuthHeader = () => {
   const pathname = usePathname();
   const isLogin = pathname === "/login";
-  console.log(pathname);
   return (
     <header className="h-14 px-5 flex items-center justify-between bg-blue-600">
       <Link href="/">

@@ -16,8 +16,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
+import { useActionState, useEffect, useRef } from "react";
+import { registerUser } from "@/lib/actions/actions";
+import { cn } from "@/lib/utils";
 
 export const RegisterForm = () => {
+  const [state, action, isPending] = useActionState(registerUser, {});
   const form = useForm<z.infer<typeof registerFormSchema>>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
@@ -25,23 +29,56 @@ export const RegisterForm = () => {
       email: "",
       password: "",
       confirmPassword: "",
+      ...(state?.fields ?? {}),
     },
+    mode: "onBlur",
   });
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    if (state.success) {
+      form.reset();
+    }
+  }, [form, state.success]);
 
   return (
     <Card className="w-full max-w-[500px]">
       <CardHeader>
         <CardTitle className="sr-only">Register</CardTitle>
+        {state.success !== undefined && (
+          <span
+            className={cn(
+              state.success ? "text-green-700" : "text-red-700",
+              "text-center font-semibold"
+            )}
+          >
+            {state.message}
+          </span>
+        )}
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form className="grid gap-4">
+          <form
+            ref={formRef}
+            className="grid gap-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              return form.handleSubmit(() => {
+                action(new FormData(formRef.current!));
+              })(e);
+            }}
+          >
             <FormField
               name="name"
+              control={form.control}
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input {...field} placeholder="Enter your name" />
+                    <Input
+                      {...field}
+                      placeholder="Enter your name"
+                      disabled={isPending}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -50,6 +87,7 @@ export const RegisterForm = () => {
 
             <FormField
               name="email"
+              control={form.control}
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
@@ -57,6 +95,7 @@ export const RegisterForm = () => {
                       {...field}
                       type="email"
                       placeholder="Enter your email address"
+                      disabled={isPending}
                     />
                   </FormControl>
                   <FormMessage />
@@ -66,6 +105,7 @@ export const RegisterForm = () => {
 
             <FormField
               name="password"
+              control={form.control}
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
@@ -73,6 +113,7 @@ export const RegisterForm = () => {
                       {...field}
                       type="password"
                       placeholder="Enter your password"
+                      disabled={isPending}
                     />
                   </FormControl>
                   <FormMessage />
@@ -82,6 +123,7 @@ export const RegisterForm = () => {
 
             <FormField
               name="confirmPassword"
+              control={form.control}
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
@@ -89,6 +131,7 @@ export const RegisterForm = () => {
                       {...field}
                       type="password"
                       placeholder="Confirm your password"
+                      disabled={isPending}
                     />
                   </FormControl>
                   <FormMessage />
@@ -96,7 +139,7 @@ export const RegisterForm = () => {
               )}
             />
 
-            <Button>Register</Button>
+            <Button disabled={isPending}>Register</Button>
           </form>
         </Form>
       </CardContent>
