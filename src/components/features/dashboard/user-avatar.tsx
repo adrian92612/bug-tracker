@@ -24,7 +24,7 @@ export const UserAvatar = async () => {
         <Avatar>
           <AvatarImage src={user?.image ?? ""} />
           <AvatarFallback>
-            <IoPersonOutline className="size-6" />
+            <IoPersonOutline className="text-2xl text-slate-800" />
           </AvatarFallback>
         </Avatar>
       </PopoverTrigger>
