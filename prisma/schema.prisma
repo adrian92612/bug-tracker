@@ -66,6 +66,7 @@ model Ticket {
   description String
   status      TicketStatus   @default(OPEN)
   priority    TicketPriority @default(MEDIUM)
+  type        TicketType     @default(BUG)
 
   project   Project @relation(fields: [projectId], references: [id])
   projectId String
@@ -111,6 +112,12 @@ enum TicketPriority {
   MEDIUM
   HIGH
   CRITICAL
+}
+
+enum TicketType {
+  BUG
+  TASK
+  OTHERS
 }
 
 model Account {
