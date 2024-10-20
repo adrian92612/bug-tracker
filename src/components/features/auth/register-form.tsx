@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { useActionState, useEffect, useRef } from "react";
-import { registerUser } from "@/lib/actions/actions";
+import { registerUser } from "@/lib/actions/auth-actions";
 import { cn } from "@/lib/utils";
 
 export const RegisterForm = () => {

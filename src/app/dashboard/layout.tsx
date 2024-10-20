@@ -1,4 +1,4 @@
-import { Header } from "@/components/features/header";
+import { Header } from "@/components/features/dashboard/header";
 
 type DashboardLayoutProps = {
   children: React.ReactNode;

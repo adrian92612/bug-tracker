@@ -18,7 +18,7 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { OAuthForm } from "./oauth-form";
 import { useActionState, useEffect, useRef } from "react";
-import { credentialsLogin } from "@/lib/actions/actions";
+import { credentialsLogin } from "@/lib/actions/auth-actions";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 

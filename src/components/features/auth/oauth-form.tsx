@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { oAuthLogin } from "@/lib/actions/actions";
+import { oAuthLogin } from "@/lib/actions/auth-actions";
 import { FaGithub, FaGoogle } from "react-icons/fa";
 
 export const OAuthForm = () => {

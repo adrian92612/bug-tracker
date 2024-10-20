@@ -19,6 +19,7 @@ const buttonVariants = cva(
           "bg-gradient-to-b from-red-500 to-red-700 hover:from-red-700 hover:to-red-700 text-neutral-100",
         outline: "border border-slate-800 bg-transparent hover:bg-accent",
         link: "text-primary underline-offset-4 hover:underline",
+        ghost: "hover:bg-accent",
       },
       size: {
         default: "h-9 px-4 py-2",
