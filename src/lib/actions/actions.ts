@@ -1,7 +1,7 @@
 "use server";
 
 import { signIn, signOut } from "@/auth";
-import { registerFormSchema } from "../schemas";
+import { loginFormSchema, registerFormSchema } from "../schemas";
 import { prisma } from "../../../prisma/prisma";
 import { createId } from "@paralleldrive/cuid2";
 import { genSalt, hashSync } from "bcrypt-ts";
@@ -10,15 +10,6 @@ export type FormResponse = {
   success?: boolean;
   message?: string;
   fields?: Record<string, string | number | boolean>;
-};
-
-export const oAuthLogin = async (formData: FormData) => {
-  const provider = formData.get("action") as string;
-  await signIn(provider, { redirectTo: "/dashboard" });
-};
-
-export const logout = async () => {
-  await signOut({ redirectTo: "/login" });
 };
 
 export const registerUser = async (
@@ -74,4 +65,48 @@ export const registerUser = async (
       message: "An unexpected error occurred. Please try again later.",
     };
   }
+};
+
+export const credentialsLogin = async (
+  state: FormResponse,
+  formData: FormData
+): Promise<FormResponse> => {
+  const data = Object.fromEntries(formData);
+  const parsedData = loginFormSchema.safeParse(data);
+
+  if (!parsedData.success) {
+    throw new Error("Invalid credentials");
+  }
+
+  const { email, password } = parsedData.data;
+
+  try {
+    await signIn("credentials", {
+      redirect: false,
+      email,
+      password,
+    });
+
+    return {
+      success: true,
+      message: "Login successful. Redirecting...",
+    };
+  } catch (error) {
+    console.error("Login failed: ", error);
+
+    return {
+      success: false,
+      message: "Invalid Credentials",
+      fields: parsedData.data,
+    };
+  }
+};
+
+export const oAuthLogin = async (formData: FormData) => {
+  const provider = formData.get("action") as string;
+  await signIn(provider, { redirectTo: "/dashboard" });
+};
+
+export const logout = async () => {
+  await signOut({ redirectTo: "/login" });
 };

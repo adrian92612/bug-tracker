@@ -17,24 +17,55 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { OAuthForm } from "./oauth-form";
+import { useActionState, useEffect, useRef } from "react";
+import { credentialsLogin } from "@/lib/actions/actions";
+import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 export const LoginForm = () => {
+  const [state, action, isPending] = useActionState(credentialsLogin, {});
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
       email: "",
       password: "",
+      ...(state?.fields ?? {}),
     },
   });
+  const formRef = useRef<HTMLFormElement>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state.success) router.push("/dashboard");
+  }, [router, state.success]);
 
   return (
     <Card className="w-full max-w-[500px]">
       <CardHeader>
         <CardTitle className="sr-only">Login</CardTitle>
+        {state.success !== undefined && (
+          <span
+            className={cn(
+              state.success ? "text-green-700" : "text-red-700",
+              "text-center font-semibold"
+            )}
+          >
+            {state.message}
+          </span>
+        )}
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form className="grid gap-4">
+          <form
+            ref={formRef}
+            className="grid gap-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              return form.handleSubmit(() => {
+                action(new FormData(formRef.current!));
+              })(e);
+            }}
+          >
             <FormField
               name="email"
               render={({ field }) => (
@@ -44,6 +75,7 @@ export const LoginForm = () => {
                       {...field}
                       type="email"
                       placeholder="Enter your email address"
+                      disabled={isPending}
                     />
                   </FormControl>
                   <FormMessage />
@@ -60,6 +92,7 @@ export const LoginForm = () => {
                       {...field}
                       type="password"
                       placeholder="Enter your password"
+                      disabled={isPending}
                     />
                   </FormControl>
                   <FormMessage />
@@ -67,7 +100,7 @@ export const LoginForm = () => {
               )}
             />
 
-            <Button>Login</Button>
+            <Button disabled={isPending}>Login</Button>
           </form>
         </Form>
       </CardContent>
