@@ -10,7 +10,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     <div className="grid md:grid-cols-[auto_1fr]">
       <Header />
       <SideBar />
-      <main className="h-[200dvh]">{children}</main>
+      <main className="min-h-[calc(100dvh-56px)]">{children}</main>
     </div>
   );
 };

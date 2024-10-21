@@ -1,5 +1,5 @@
 const OverviewPage = () => {
-  return <div className="grid h-screen place-items-center">OverviewPage</div>;
+  return <div className="grid h-full place-items-center">OverviewPage</div>;
 };
 
 export default OverviewPage;

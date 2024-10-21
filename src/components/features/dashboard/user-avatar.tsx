@@ -1,20 +1,14 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { IoPersonOutline } from "react-icons/io5";
-
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { User } from "@prisma/client";
 import { logout } from "@/lib/actions/auth-actions";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { getUser } from "@/lib/actions/user-actions";
-
-type UserAvatarProps = {
-  user: User;
-};
 
 export const UserAvatar = async () => {
   const user = await getUser();
@@ -24,7 +18,7 @@ export const UserAvatar = async () => {
         <Avatar>
           <AvatarImage src={user?.image ?? ""} />
           <AvatarFallback>
-            <IoPersonOutline className="text-2xl text-slate-800" />
+            <IoPersonOutline className="text-xl text-slate-800" />
           </AvatarFallback>
         </Avatar>
       </PopoverTrigger>

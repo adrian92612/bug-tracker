@@ -19,7 +19,7 @@ export const Header = async () => {
           placeholder="Search..."
           className="max-w-60 grow border-b-slate-50 bg-slate-50"
         />
-        <IoIosNotifications className="text-4xl text-slate-50 shrink-0" />
+        <IoIosNotifications className="text-3xl text-slate-50 shrink-0" />
         <UserAvatar />
       </div>
     </header>
