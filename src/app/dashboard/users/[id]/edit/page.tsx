@@ -1,8 +1,15 @@
 import { EditUserForm } from "@/components/features/users/edit-user-form";
 import { getUser } from "@/lib/actions/user-actions";
 
-const EditUserPage = async () => {
-  const user = await getUser();
+type EditUserPageProps = {
+  params: {
+    id: string;
+  };
+};
+
+const EditUserPage = async ({ params }: EditUserPageProps) => {
+  const user = await getUser(params.id);
+  console.log("EDIT USER: ", user);
   if (!user) return <div>No User Found</div>;
   return (
     <div className="min-h-full grid place-items-center">

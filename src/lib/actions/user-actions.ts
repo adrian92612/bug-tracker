@@ -14,15 +14,30 @@ export const getUserId = async (): Promise<string | undefined> => {
   return session?.user?.id;
 };
 
-export const getUser = async (): Promise<User | null> => {
+export const getUser = async (id?: string): Promise<User | null> => {
   try {
-    const userId = await getUserId();
-    return await prisma.user.findUnique({
-      where: { id: userId },
-    });
+    if (id) {
+      return await prisma.user.findUnique({
+        where: { id: id },
+      });
+    } else {
+      const userId = await getUserId();
+      return await prisma.user.findUnique({
+        where: { id: userId },
+      });
+    }
   } catch (error) {
     console.error("Failed to get user: ", error);
     return null;
+  }
+};
+
+export const getUsers = async (): Promise<User[]> => {
+  try {
+    return await prisma.user.findMany({});
+  } catch (error) {
+    console.error("Failed to get users: ", error);
+    return [];
   }
 };
 
@@ -71,9 +86,10 @@ export const addUser = async (
       },
     });
 
+    revalidatePath("/dashboard/users");
     return {
       success: true,
-      message: "User added successfully!",
+      message: `${name} has been added successfully!`,
     };
   } catch (error) {
     console.error("Failed to add user: ", error);
@@ -130,5 +146,18 @@ export const editUser = async (
       message: "Failed to update user, try again later.",
       fields: parsedData.data,
     };
+  }
+};
+
+export const deleteUser = async (id: string): Promise<boolean> => {
+  try {
+    await prisma.user.delete({
+      where: { id },
+    });
+    revalidatePath("/dashboard/users");
+    return true;
+  } catch (error) {
+    console.error("Failed to delete user: ", error);
+    return false;
   }
 };

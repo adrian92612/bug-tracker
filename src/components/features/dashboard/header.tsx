@@ -6,7 +6,7 @@ import { SideBarSheet } from "./sidebar";
 
 export const Header = async () => {
   return (
-    <header className="h-14 px-2 md:px-5 md:col-span-2 flex items-center bg-blue-600 gap-10 sticky top-0">
+    <header className="h-14 px-2 md:px-5 md:col-span-2 flex items-center bg-blue-600 gap-10 sticky top-0 z-[1]">
       <div className="flex items-center justify-end gap-2">
         <SideBarSheet />
         <Link href="/dashboard/overview" className="hidden md:block">
