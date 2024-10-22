@@ -105,3 +105,16 @@ export const addUserFormSchema = z
     path: ["confirmPassword"],
     message: "Password do not match",
   });
+
+export const editUserFormSchema = z.object({
+  id: z.string(),
+  email: z.string().email(),
+  role: z.enum(["ADMIN", "MANAGER", "DEVELOPER", "CONTRIBUTOR", "USER"], {
+    errorMap: () => ({ message: "Please select a role" }),
+  }),
+  name: z
+    .string()
+    .trim()
+    .min(1, "Required")
+    .max(50, "Cannot be more than 50 characters."),
+});

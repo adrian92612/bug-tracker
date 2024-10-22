@@ -58,7 +58,7 @@ export const SideBarSheet = () => {
             <IoIosArrowDropright />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="pt-10 max-w-56">
+        <SheetContent side="left" className="pt-10 w-52">
           <h1 className="font-bold mb-5 text-center">ProjectSync</h1>
 
           <SideBarLinks />

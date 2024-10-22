@@ -4,9 +4,10 @@ import { User } from "@prisma/client";
 import { prisma } from "../../../prisma/prisma";
 import { auth } from "@/auth";
 import { FormResponse } from "./auth-actions";
-import { addUserFormSchema } from "../schemas";
+import { addUserFormSchema, editUserFormSchema } from "../schemas";
 import { genSalt, hashSync } from "bcrypt-ts";
 import { createId } from "@paralleldrive/cuid2";
+import { revalidatePath } from "next/cache";
 
 export const getUserId = async (): Promise<string | undefined> => {
   const session = await auth();
@@ -79,6 +80,54 @@ export const addUser = async (
     return {
       success: false,
       message: "Failed to add user, try again later.",
+      fields: parsedData.data,
+    };
+  }
+};
+
+export const editUser = async (
+  state: FormResponse,
+  formData: FormData
+): Promise<FormResponse> => {
+  const data = Object.fromEntries(formData);
+  const parsedData = editUserFormSchema.safeParse(data);
+  console.log("sdkjfjhsdalfhsdakfhsdlkfhj");
+  console.log("DATA", data);
+  console.log("parsedData", parsedData);
+
+  if (!parsedData.success) {
+    console.log(parsedData.error.flatten().fieldErrors);
+    return {
+      success: false,
+      message:
+        "Edit user failed. Please check the form for errors or try again later.",
+      fields: parsedData.data,
+    };
+  }
+  const { id, role, name } = parsedData.data;
+
+  try {
+    await prisma.user.update({
+      where: {
+        id: id,
+      },
+      data: {
+        role,
+        name,
+      },
+    });
+
+    revalidatePath(`/dashboard/users/${id}/edit`);
+    return {
+      success: true,
+      message: "User updated successfully!",
+      fields: parsedData.data,
+    };
+  } catch (error) {
+    console.error("Failed to update user: ", error);
+    return {
+      success: false,
+      message: "Failed to update user, try again later.",
       fields: parsedData.data,
     };
   }
