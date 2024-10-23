@@ -15,8 +15,33 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { TableActions } from "./table-actions";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { IoPersonOutline } from "react-icons/io5";
 
 export const userColumns: ColumnDef<User>[] = [
+  {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
   {
     accessorKey: "name",
     header: ({ column }) => {
@@ -29,6 +54,20 @@ export const userColumns: ColumnDef<User>[] = [
           Name
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const user = row.original;
+      return (
+        <div className="flex items-center gap-1">
+          <Avatar className="size-8">
+            <AvatarImage src={user.image ?? ""} />
+            <AvatarFallback>
+              <IoPersonOutline className="size-4 text-slate-800" />
+            </AvatarFallback>
+          </Avatar>
+          {user.name}
+        </div>
       );
     },
     sortingFn: "alphanumeric",

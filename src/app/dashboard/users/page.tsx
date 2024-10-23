@@ -20,22 +20,22 @@ const UsersPage = async () => {
         </Button>
       </div>
 
-      <div className="space-y-5 lg:space-y-0 lg:grid lg:grid-cols-2 gap-5">
+      <div className="space-y-10 lg:space-y-0 lg:grid lg:grid-cols-2 gap-5">
         <div>
-          <h1>Available Personel</h1>
           <DataTable
             columns={userColumns}
             data={noRoleUsers}
             className="bg-green-200"
+            tableName="Available Personnel"
           />
         </div>
 
         <div>
-          <h1>Occupied Personel</h1>
           <DataTable
             columns={userColumns}
             data={roleUsers}
             className="bg-amber-200"
+            tableName="Occupied Personnel"
           />
         </div>
       </div>
