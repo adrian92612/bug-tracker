@@ -1,5 +1,11 @@
 import { createId } from "@paralleldrive/cuid2";
-import { PrismaClient } from "@prisma/client";
+import {
+  PrismaClient,
+  ProjectStatus,
+  TicketPriority,
+  TicketStatus,
+  TicketType,
+} from "@prisma/client";
 import { genSalt, hashSync } from "bcrypt-ts";
 
 const prisma = new PrismaClient();
@@ -110,7 +116,78 @@ const users: userProps[] = [
   },
 ];
 
+const projects = [
+  {
+    name: "Project Alpha",
+    description: "A project focusing on alpha development.",
+    deadline: new Date("2024-12-31"),
+    status: "ONGOING" as ProjectStatus,
+  },
+  {
+    name: "Project Beta",
+    description: "Beta project with various testing efforts.",
+    deadline: new Date("2024-11-15"),
+    status: "ONGOING" as ProjectStatus,
+  },
+  {
+    name: "Project Gamma",
+    description: "Gamma project focusing on high-priority tasks.",
+    deadline: new Date("2024-10-30"),
+    status: "OVERDUE" as ProjectStatus,
+  },
+  {
+    name: "Project Delta",
+    description: "A project aimed at system integration.",
+    deadline: new Date("2024-11-05"),
+    status: "CLOSED" as ProjectStatus,
+  },
+  {
+    name: "Project Epsilon",
+    description: "Epsilon project for deployment and monitoring.",
+    deadline: new Date("2025-01-20"),
+    status: "ONGOING" as ProjectStatus,
+  },
+];
+
+const tickets = [
+  {
+    title: "Fix login bug",
+    description: "Resolve an issue preventing users from logging in.",
+    status: "OPEN" as TicketStatus,
+    priority: "HIGH" as TicketPriority,
+    type: "BUG" as TicketType,
+  },
+  {
+    title: "Add dashboard feature",
+    description: "Implement the new dashboard statistics feature.",
+    status: "IN_PROGRESS" as TicketStatus,
+    priority: "MEDIUM" as TicketPriority,
+    type: "TASK" as TicketType,
+  },
+  {
+    title: "Database schema update",
+    description: "Update the database schema to improve performance.",
+    status: "IN_REVIEW" as TicketStatus,
+    priority: "CRITICAL" as TicketPriority,
+    type: "TASK" as TicketType,
+  },
+  {
+    title: "UI/UX design overhaul",
+    description: "Revamp the UI for a better user experience.",
+    status: "CLOSED" as TicketStatus,
+    priority: "LOW" as TicketPriority,
+    type: "OTHERS" as TicketType,
+  },
+];
+
 async function main() {
+  console.log("Clearing existing data...");
+  await prisma.projectAssignment.deleteMany();
+  await prisma.ticket.deleteMany();
+  await prisma.project.deleteMany();
+  await prisma.user.deleteMany();
+
+  console.log("Seeding users...");
   await Promise.all(
     users.map(async (user) => {
       try {
@@ -136,6 +213,89 @@ async function main() {
       }
     })
   );
+
+  console.log("Seeding projects and tickets...");
+  // Get users for assigning to projects
+  const admin = await prisma.user.findFirst({ where: { role: "ADMIN" } });
+  const managers = await prisma.user.findMany({ where: { role: "MANAGER" } });
+  const developers = await prisma.user.findMany({
+    where: { role: "DEVELOPER" },
+  });
+  const contributors = await prisma.user.findMany({
+    where: { role: "CONTRIBUTOR" },
+  });
+
+  // Create projects with members and tickets
+  await Promise.all(
+    projects.map(async (project) => {
+      try {
+        // Randomly select 1 manager, 2 developers, and 3 contributors
+        const manager = managers[Math.floor(Math.random() * managers.length)];
+        const projectDevelopers = getRandomElements(developers, 2);
+        const projectContributors = getRandomElements(contributors, 3);
+
+        // Create project
+        const createdProject = await prisma.project.create({
+          data: {
+            id: createId(),
+            name: project.name,
+            description: project.description,
+            deadline: project.deadline,
+            status: project.status,
+            ownerId: admin!.id,
+          },
+        });
+
+        // Assign manager, developers, and contributors to the project
+        await prisma.projectAssignment.create({
+          data: {
+            userId: manager.id,
+            projectId: createdProject.id,
+          },
+        });
+
+        await Promise.all(
+          [...projectDevelopers, ...projectContributors].map(async (member) => {
+            await prisma.projectAssignment.create({
+              data: {
+                userId: member.id,
+                projectId: createdProject.id,
+              },
+            });
+          })
+        );
+
+        // Create 4 tickets for each project
+        await Promise.all(
+          tickets.map(async (ticket) => {
+            await prisma.ticket.create({
+              data: {
+                id: createId(),
+                title: ticket.title,
+                description: ticket.description,
+                status: ticket.status,
+                priority: ticket.priority,
+                type: ticket.type,
+                projectId: createdProject.id,
+                createdById: manager.id, // Assuming project owner creates tickets
+              },
+            });
+          })
+        );
+
+        console.log(
+          `Project "${createdProject.name}" with assigned roles and tickets has been created`
+        );
+      } catch (error) {
+        console.error(`Failed to create project ${project.name}:`, error);
+      }
+    })
+  );
+}
+
+function getRandomElements<T>(array: T[], count: number): T[] {
+  const shuffled = array.sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
 }
 
 main()
