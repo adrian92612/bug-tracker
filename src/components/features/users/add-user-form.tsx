@@ -73,7 +73,6 @@ export const AddUserForm = () => {
 
   useEffect(() => {
     if (state.success) {
-      form.reset();
       setResetKey((prev) => prev + 1);
     }
   }, [form, state]);

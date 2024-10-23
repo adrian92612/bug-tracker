@@ -118,3 +118,17 @@ export const editUserFormSchema = z.object({
     .min(1, "Required")
     .max(50, "Cannot be more than 50 characters."),
 });
+
+export const createProjectSchema = z.object({
+  ownerId: z.string().trim().min(1, "Owner Id is required"),
+  name: z
+    .string()
+    .trim()
+    .min(1, "Name is required")
+    .max(50, "Cannot be more than 50 character"),
+  description: z
+    .string()
+    .trim()
+    .min(1, "Description is required")
+    .max(150, "Cannot be more than 150 character"),
+});
