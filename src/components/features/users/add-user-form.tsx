@@ -73,6 +73,7 @@ export const AddUserForm = () => {
 
   useEffect(() => {
     if (state.success) {
+      form.reset();
       setResetKey((prev) => prev + 1);
     }
   }, [form, state]);
@@ -94,9 +95,10 @@ export const AddUserForm = () => {
         )}
       </CardHeader>
       <CardContent>
-        <Form {...form} key={resetKey}>
+        <Form {...form}>
           <form
             ref={formRef}
+            key={resetKey}
             className="grid gap-4"
             onSubmit={(e) => {
               e.preventDefault();

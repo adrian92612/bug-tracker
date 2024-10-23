@@ -7,8 +7,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import { ProjectWithOMT } from "@/lib/actions/project-actions";
+import { deleteProject, ProjectWithOMT } from "@/lib/actions/project-actions";
 import { format } from "date-fns";
+import { MoreActionsDropdown } from "../more-actions";
 
 type ProjectCardProps = {
   project: ProjectWithOMT;
@@ -20,6 +21,12 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
       <CardHeader className="">
         <div className="flex items-center justify-between">
           <Badge variant="ongoing">{project.status.toLowerCase()}</Badge>
+          <MoreActionsDropdown
+            id={project.id}
+            name={project.name}
+            pageHref={`/dashboard/projects/${project.id}`}
+            deleteFn={deleteProject}
+          />
         </div>
         <CardTitle className="text-xl">{project.name}</CardTitle>
         <CardDescription>{project.description}</CardDescription>

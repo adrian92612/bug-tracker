@@ -8,7 +8,7 @@ import { getUserId } from "@/lib/actions/user-actions";
 const ProjectsPage = async () => {
   const id = await getUserId();
   const projects = await getProjects();
-  console.log(projects);
+
   return (
     <div className="h-full">
       ProjectsPage

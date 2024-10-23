@@ -102,3 +102,16 @@ export const createProject = async (
     };
   }
 };
+
+export const deleteProject = async (id: string): Promise<boolean> => {
+  try {
+    await prisma.project.delete({
+      where: { id },
+    });
+    revalidatePath("/dashboard/projects");
+    return true;
+  } catch (error) {
+    console.error("Failed to delete project: ", error);
+    return false;
+  }
+};

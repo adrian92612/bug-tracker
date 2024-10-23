@@ -4,21 +4,11 @@ import { Button } from "@/components/ui/button";
 import { ArrowUpDown } from "lucide-react";
 import { User } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
-import { IoIosMore } from "react-icons/io";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import Link from "next/link";
-import { TableActions } from "./table-actions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { IoPersonOutline } from "react-icons/io5";
 import { deleteUser } from "@/lib/actions/user-actions";
+import { MoreActionsDropdown } from "../more-actions";
 
 export const userColumns: ColumnDef<User>[] = [
   {
@@ -111,30 +101,12 @@ export const userColumns: ColumnDef<User>[] = [
     cell: ({ row }) => {
       const user = row.original;
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger className="text-3xl justify-center">
-            <IoIosMore />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link
-                href={`/dashboard/users/${user.id}/edit`}
-                className="w-full text-base hover:cursor-pointer"
-              >
-                Edit
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <TableActions
-                id={user.id}
-                name={user.name}
-                deleteFn={deleteUser}
-              />
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <MoreActionsDropdown
+          id={user.id}
+          name={user.name}
+          pageHref={`/dashboard/users/${user.id}`}
+          deleteFn={deleteUser}
+        />
       );
     },
     size: 70,
