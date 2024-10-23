@@ -1,6 +1,5 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -14,10 +13,18 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { createProject } from "@/lib/actions/project-actions";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
 
 type ProjectFormProps = {
   ownerId: string;
@@ -25,12 +32,14 @@ type ProjectFormProps = {
 
 export const ProjectForm = ({ ownerId }: ProjectFormProps) => {
   const [state, action, isPending] = useActionState(createProject, {});
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const form = useForm<z.infer<typeof createProjectSchema>>({
     resolver: zodResolver(createProjectSchema),
     defaultValues: {
       ownerId,
       name: "",
       description: "",
+      deadline: undefined,
       ...(state?.fields ?? {}),
     },
     mode: "onBlur",
@@ -44,21 +53,6 @@ export const ProjectForm = ({ ownerId }: ProjectFormProps) => {
   }, [state.success, form]);
 
   return (
-    // <Card className="w-full border-none shadow-none">
-    //   <CardHeader className="text-center relative">
-    //     <CardTitle>New Project</CardTitle>
-    //     {state.success !== undefined && (
-    //       <span
-    //         className={cn(
-    //           state.success ? "text-green-700" : "text-red-700",
-    //           "text-center font-semibold"
-    //         )}
-    //       >
-    //         {state.message}
-    //       </span>
-    //     )}
-    //   </CardHeader>
-    //   <CardContent>
     <Form {...form}>
       {state.success !== undefined && (
         <span
@@ -116,10 +110,55 @@ export const ProjectForm = ({ ownerId }: ProjectFormProps) => {
           )}
         />
 
+        <FormField
+          name="deadline"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-[240px] pl-3 text-left font-normal border-border",
+                        !field.value && "text-muted-foreground"
+                      )}
+                    >
+                      {field.value ? (
+                        format(field.value, "PPP")
+                      ) : (
+                        <span>Set a deadline</span>
+                      )}
+                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={field.value}
+                    onSelect={(e) => {
+                      field.onChange(e);
+                      setIsCalendarOpen(false);
+                    }}
+                    disabled={(date) => date < new Date()}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+              <input
+                type="hidden"
+                name={field.name}
+                value={field.value ? new Date(field.value).toISOString() : ""}
+              />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <Button disabled={isPending}>Create</Button>
       </form>
     </Form>
-    //   </CardContent>
-    // </Card>
   );
 };

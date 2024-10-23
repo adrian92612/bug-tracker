@@ -44,11 +44,13 @@ model User {
 }
 
 model Project {
-  id          String @id
+  id          String        @id
   name        String
   description String
-  owner       User   @relation("ProjectOwner", fields: [ownerId], references: [id])
+  owner       User          @relation("ProjectOwner", fields: [ownerId], references: [id])
   ownerId     String
+  deadline    DateTime
+  status      ProjectStatus @default(ONGOING)
 
   // Users working on the project
   members ProjectAssignment[]
@@ -89,6 +91,12 @@ model ProjectAssignment {
   project Project @relation(fields: [projectId], references: [id])
 
   @@id([userId, projectId])
+}
+
+enum ProjectStatus {
+  ONGOING
+  CLOSED
+  OVERDUE
 }
 
 enum Role {

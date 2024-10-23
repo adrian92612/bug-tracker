@@ -131,4 +131,8 @@ export const createProjectSchema = z.object({
     .trim()
     .min(1, "Description is required")
     .max(150, "Cannot be more than 150 character"),
+  deadline: z.date({
+    required_error: "Deadline is required",
+    invalid_type_error: "Invalid date format",
+  }),
 });
