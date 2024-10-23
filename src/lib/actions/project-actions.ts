@@ -5,6 +5,54 @@ import { prisma } from "../../../prisma/prisma";
 import { createProjectSchema } from "../schemas";
 import { FormResponse } from "./auth-actions";
 import { revalidatePath } from "next/cache";
+import { Project, Ticket, User } from "@prisma/client";
+
+export type ProjectWithOMT = Project & {
+  owner: Pick<User, "id" | "name" | "email">;
+  members: {
+    user: Pick<User, "id" | "name" | "email" | "role">;
+  }[];
+  tickets: Pick<Ticket, "id" | "title" | "status" | "priority">[];
+};
+
+export const getProjects = async (): Promise<ProjectWithOMT[]> => {
+  try {
+    return await prisma.project.findMany({
+      include: {
+        owner: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        members: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+              },
+            },
+          },
+        },
+        tickets: {
+          select: {
+            id: true,
+            title: true,
+            status: true,
+            priority: true,
+          },
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Failed to get projects: ", error);
+    return [];
+  }
+};
 
 export const createProject = async (
   state: FormResponse,

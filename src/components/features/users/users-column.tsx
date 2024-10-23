@@ -18,6 +18,7 @@ import { TableActions } from "./table-actions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { IoPersonOutline } from "react-icons/io5";
+import { deleteUser } from "@/lib/actions/user-actions";
 
 export const userColumns: ColumnDef<User>[] = [
   {
@@ -120,13 +121,17 @@ export const userColumns: ColumnDef<User>[] = [
             <DropdownMenuItem asChild>
               <Link
                 href={`/dashboard/users/${user.id}/edit`}
-                className="w-full text-base"
+                className="w-full text-base hover:cursor-pointer"
               >
                 Edit
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <TableActions id={user.id} name={user.name} />
+              <TableActions
+                id={user.id}
+                name={user.name}
+                deleteFn={deleteUser}
+              />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
