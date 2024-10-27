@@ -1,7 +1,7 @@
 "use server";
 
 import { signIn, signOut } from "@/auth";
-import { loginFormSchema, registerFormSchema } from "../schemas";
+import { loginFormSchema, registerUserFormSchema } from "../schemas";
 import { prisma } from "../../../prisma/prisma";
 import { createId } from "@paralleldrive/cuid2";
 import { genSalt, hashSync } from "bcrypt-ts";
@@ -9,7 +9,7 @@ import { genSalt, hashSync } from "bcrypt-ts";
 export type FormResponse = {
   success?: boolean;
   message?: string;
-  fields?: Record<string, string | number | boolean>;
+  fields?: Record<string, string | number | boolean | Date>;
 };
 
 export const registerUser = async (
@@ -17,7 +17,7 @@ export const registerUser = async (
   formData: FormData
 ): Promise<FormResponse> => {
   const data = Object.fromEntries(formData);
-  const parsedData = registerFormSchema.safeParse(data);
+  const parsedData = registerUserFormSchema.safeParse(data);
 
   if (!parsedData.success) {
     return {

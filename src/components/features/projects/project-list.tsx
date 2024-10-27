@@ -10,6 +10,7 @@ import {
 import { deleteProject, ProjectWithOMT } from "@/lib/actions/project-actions";
 import { format } from "date-fns";
 import { MoreActionsDropdown } from "../more-actions";
+import { ProjectForm } from "./project-form";
 
 type ProjectCardProps = {
   project: ProjectWithOMT;
@@ -26,6 +27,9 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
             name={project.name}
             pageHref={`/dashboard/projects/${project.id}`}
             deleteFn={deleteProject}
+            editForm={
+              <ProjectForm ownerId={project.ownerId} project={project} />
+            }
           />
         </div>
         <CardTitle className="text-xl">{project.name}</CardTitle>

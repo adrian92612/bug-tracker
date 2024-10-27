@@ -21,9 +21,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { useState } from "react";
+import React, { useState } from "react";
 import { IoIosMore } from "react-icons/io";
 import { Button } from "../ui/button";
+import { FormDialog } from "./form-dialog";
+import { CgDetailsMore } from "react-icons/cg";
+import { MdOutlineDelete } from "react-icons/md";
 
 type DeleteDialogProps = {
   id: string;
@@ -48,12 +51,13 @@ export const DeleteDialog = ({
   };
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild className="w-full text-left px-2 h-9">
+      <AlertDialogTrigger asChild className="w-full px-2 h-9">
         <Button
           variant="ghost"
           size="xs"
           className="h-8 text-sm font-normal justify-start"
         >
+          <MdOutlineDelete />
           Delete
         </Button>
       </AlertDialogTrigger>
@@ -79,6 +83,7 @@ type MoreActionsDropdown = {
   name: string;
   pageHref: string;
   deleteFn: (id: string) => Promise<boolean>;
+  editForm: React.ReactNode;
 };
 
 export const MoreActionsDropdown = ({
@@ -86,6 +91,7 @@ export const MoreActionsDropdown = ({
   name,
   pageHref,
   deleteFn,
+  editForm,
 }: MoreActionsDropdown) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   return (
@@ -101,8 +107,18 @@ export const MoreActionsDropdown = ({
             href={pageHref}
             className="w-full text-base hover:cursor-pointer"
           >
+            <CgDetailsMore />
             Details
           </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <FormDialog
+            buttonLabel="Edit"
+            formTitle={`Edit ${name}`}
+            forMoreActions
+          >
+            {editForm}
+          </FormDialog>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <DeleteDialog

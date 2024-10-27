@@ -7,9 +7,8 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { editUserFormSchema } from "@/lib/schemas";
+import { addUserFormSchema, editUserFormSchema } from "@/lib/schemas";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -23,8 +22,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { editUser } from "@/lib/actions/user-actions";
+import { upsertUser } from "@/lib/actions/user-actions";
 import { User } from "@prisma/client";
+import { z } from "zod";
 
 type rolesType = {
   label: string;
@@ -55,30 +55,34 @@ const roles: rolesType[] = [
 ];
 
 type EditUserForm = {
-  user: User;
+  user?: User;
 };
 
-export const EditUserForm = ({ user }: EditUserForm) => {
-  const [state, action, isPending] = useActionState(editUser, {});
+export const UserForm = ({ user }: EditUserForm) => {
+  const [state, action, isPending] = useActionState(upsertUser, {});
   const [resetKey, setResetKey] = useState<number>(0);
-  const form = useForm<z.infer<typeof editUserFormSchema>>({
-    resolver: zodResolver(editUserFormSchema),
+  const schema = user ? editUserFormSchema : addUserFormSchema;
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
     defaultValues: {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      name: user.name,
+      id: user?.id ?? "",
+      email: user?.email ?? "",
+      name: user?.name ?? "",
+      role: user?.role,
+      password: "",
+      confirmPassword: "",
       ...(state?.fields ?? {}),
     },
     mode: "onBlur",
   });
   const formRef = useRef<HTMLFormElement>(null);
+
   useEffect(() => {
-    if (state.success) {
+    if (state.success && !user) {
+      form.reset();
       setResetKey((prev) => prev + 1);
     }
-  }, [form, state]);
-
+  }, [form, state.success, user]);
   return (
     <Form {...form} key={resetKey}>
       <form
@@ -86,9 +90,7 @@ export const EditUserForm = ({ user }: EditUserForm) => {
         className="grid gap-4"
         onSubmit={(e) => {
           e.preventDefault();
-          console.log("on submit form");
           return form.handleSubmit(() => {
-            console.log("form submitted");
             action(new FormData(formRef.current!));
           })(e);
         }}
@@ -103,6 +105,14 @@ export const EditUserForm = ({ user }: EditUserForm) => {
             {state.message}
           </span>
         )}
+
+        {user && (
+          <>
+            <Input value={form.getValues().id} name="id" type="hidden" />
+            <Input value={form.getValues().email} name="email" type="hidden" />
+          </>
+        )}
+
         <FormField
           name="role"
           control={form.control}
@@ -150,41 +160,66 @@ export const EditUserForm = ({ user }: EditUserForm) => {
           )}
         />
 
-        <div>
-          <FormField
-            name="email"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input {...field} type="hidden" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        {!user && (
+          <>
+            <FormField
+              name="email"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="email"
+                      placeholder="Enter your email address"
+                      disabled={isPending}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            name="id"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input
-                    {...field}
-                    type="hidden"
-                    placeholder="Enter your name"
-                    disabled={isPending}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+            <FormField
+              name="password"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="password"
+                      placeholder="Enter your password"
+                      disabled={isPending}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              name="confirmPassword"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="password"
+                      placeholder="Confirm your password"
+                      disabled={isPending}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
 
         <Button type="submit" disabled={isPending}>
-          Update
+          {user ? "Update" : "Create"}
         </Button>
       </form>
     </Form>

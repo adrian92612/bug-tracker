@@ -2,7 +2,7 @@
 
 import { createId } from "@paralleldrive/cuid2";
 import { prisma } from "../../../prisma/prisma";
-import { createProjectSchema } from "../schemas";
+import { projectFormSchema } from "../schemas";
 import { FormResponse } from "./auth-actions";
 import { revalidatePath } from "next/cache";
 import { Project, Ticket, User } from "@prisma/client";
@@ -54,7 +54,7 @@ export const getProjects = async (): Promise<ProjectWithOMT[]> => {
   }
 };
 
-export const createProject = async (
+export const upsertProject = async (
   state: FormResponse,
   formData: FormData
 ): Promise<FormResponse> => {
@@ -62,43 +62,60 @@ export const createProject = async (
 
   const deadlineDate = new Date(data.deadline as string);
 
-  const parsedData = createProjectSchema.safeParse({
+  const parsedData = projectFormSchema.safeParse({
     ...data,
     deadline: deadlineDate,
   });
-  console.log(parsedData.data);
 
   if (!parsedData.success) {
-    console.log(parsedData.error.flatten().fieldErrors);
     return {
       success: false,
-      message: "Failed to create project, please check the form for errors.",
-      fields: {},
+      message: `Failed to ${
+        data.id ? "update" : "create"
+      } project, please check the form for errors.`,
+      fields: parsedData.data,
     };
   }
-  const { ownerId, name, description, deadline } = parsedData.data;
+  const { id, ownerId, name, description, deadline } = parsedData.data;
   try {
-    await prisma.project.create({
-      data: {
-        id: createId(),
-        ownerId,
-        name,
-        description,
-        deadline,
-      },
-    });
+    if (id) {
+      await prisma.project.update({
+        where: { id },
+        data: {
+          name,
+          description,
+          deadline,
+        },
+      });
+    } else {
+      await prisma.project.create({
+        data: {
+          id: createId(),
+          ownerId,
+          name,
+          description,
+          deadline,
+        },
+      });
+    }
 
     revalidatePath("/dashboard/projects");
+    revalidatePath(`/dashboard/projects/${id}`);
     return {
       success: true,
-      message: `Project ${name} has been created successfully`,
+      message: `Project ${name} has been ${
+        id ? "updated" : "created"
+      } successfully`,
+      fields: parsedData.data,
     };
   } catch (error) {
-    console.error("Failed to create project: ", error);
+    console.error(`Failed to ${id ? "update" : "create"} project: `, error);
     return {
       success: false,
-      message: `Failed to create project ${name}, try again later`,
-      fields: {},
+      message: `Failed to ${
+        id ? "update" : "create"
+      } project ${name}, try again later`,
+      fields: parsedData.data,
     };
   }
 };

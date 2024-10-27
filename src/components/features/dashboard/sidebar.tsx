@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { FaUsers } from "react-icons/fa";
 import { GrOverview, GrProjects } from "react-icons/gr";
@@ -28,13 +29,19 @@ const links = [
 ];
 
 const SideBarLinks = () => {
+  const pathname = usePathname();
   return (
-    <ul className="space-y-5">
+    <ul className="space-y-2">
       {links.map((link) => (
         <li key={link.label}>
           <Link
             href={link.href}
-            className="w-52 overflow-hidden flex items-center gap-3 pl-1"
+            className={cn(
+              "w-full overflow-hidden flex items-center gap-3 pl-3 h-10 transition duration-300",
+              pathname.startsWith(link.href)
+                ? "bg-slate-800 text-slate-100 font-bold"
+                : ""
+            )}
           >
             <span className="text-2xl">{link.icon}</span>
             {link.label}
@@ -58,7 +65,10 @@ export const SideBarSheet = () => {
             <IoIosArrowDropright />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="pt-10 w-52">
+        <SheetContent
+          side="left"
+          className="px-0 pt-10 w-52 border-slate-800 overflow-hidden"
+        >
           <h1 className="font-bold mb-5 text-center">ProjectSync</h1>
 
           <SideBarLinks />
@@ -74,13 +84,13 @@ export const SideBar = () => {
     <div
       className={cn(
         isOpen ? "w-52" : "w-12",
-        "hidden md:flex flex-col overflow-hidden shadow-md shadow-slate-600 p-2 bg-white sticky top-[56px] h-[calc(100dvh-56px)] transition-width duration-300"
+        "hidden md:flex flex-col overflow-hidden shadow-md shadow-slate-600 bg-white sticky top-[56px] h-[calc(100dvh-56px)] transition-width duration-300"
       )}
     >
       <Button
         variant="ghost"
         size="icon"
-        className="ml-auto text-3xl mb-5 p-0"
+        className="ml-auto text-3xl my-2 mr-2 p-0"
         onClick={() => setIsOpen(!isOpen)}
       >
         <IoIosArrowDropright

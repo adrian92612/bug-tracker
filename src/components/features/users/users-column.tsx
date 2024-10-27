@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { IoPersonOutline } from "react-icons/io5";
 import { deleteUser } from "@/lib/actions/user-actions";
 import { MoreActionsDropdown } from "../more-actions";
+import { UserForm } from "./user-form";
 
 export const userColumns: ColumnDef<User>[] = [
   {
@@ -106,6 +107,7 @@ export const userColumns: ColumnDef<User>[] = [
           name={user.name}
           pageHref={`/dashboard/users/${user.id}`}
           deleteFn={deleteUser}
+          editForm={<UserForm user={user} />}
         />
       );
     },

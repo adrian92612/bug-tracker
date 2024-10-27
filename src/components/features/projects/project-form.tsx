@@ -7,7 +7,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { createProjectSchema } from "@/lib/schemas";
+import { projectFormSchema } from "@/lib/schemas";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { createProject } from "@/lib/actions/project-actions";
+import { upsertProject } from "@/lib/actions/project-actions";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Popover,
@@ -25,39 +25,41 @@ import {
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
+import { Project } from "@prisma/client";
 
 type ProjectFormProps = {
   ownerId: string;
+  project?: Project;
 };
 
-export const ProjectForm = ({ ownerId }: ProjectFormProps) => {
-  const [state, action, isPending] = useActionState(createProject, {});
+export const ProjectForm = ({ ownerId, project }: ProjectFormProps) => {
+  const [state, action, isPending] = useActionState(upsertProject, {});
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const form = useForm<z.infer<typeof createProjectSchema>>({
-    resolver: zodResolver(createProjectSchema),
+  const formRef = useRef<HTMLFormElement>(null);
+  const form = useForm<z.infer<typeof projectFormSchema>>({
+    resolver: zodResolver(projectFormSchema),
     defaultValues: {
+      id: project?.id ?? "",
       ownerId,
-      name: "",
-      description: "",
-      deadline: undefined,
+      name: project?.name ?? "",
+      description: project?.description ?? "",
+      deadline: project?.deadline,
       ...(state?.fields ?? {}),
     },
     mode: "onBlur",
   });
-  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    if (state.success) {
+    if (state.success && !project) {
       form.reset();
     }
-  }, [state.success, form]);
-
+  }, [state.success, form, project]);
   return (
     <Form {...form}>
       {state.success !== undefined && (
         <span
           className={cn(
-            state.success ? "text-green-700" : "text-red-700",
+            state.success ? "text-green-500" : "text-red-500",
             "text-center font-semibold"
           )}
         >
@@ -75,6 +77,7 @@ export const ProjectForm = ({ ownerId }: ProjectFormProps) => {
         }}
       >
         <Input value={form.getValues().ownerId} name="ownerId" type="hidden" />
+        <Input value={form.getValues().id} name="id" type="hidden" />
 
         <FormField
           name="name"
@@ -130,6 +133,7 @@ export const ProjectForm = ({ ownerId }: ProjectFormProps) => {
                       ) : (
                         <span>Set a deadline</span>
                       )}
+
                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
                   </FormControl>
@@ -157,7 +161,7 @@ export const ProjectForm = ({ ownerId }: ProjectFormProps) => {
           )}
         />
 
-        <Button disabled={isPending}>Create</Button>
+        <Button disabled={isPending}>{project ? "Update" : "Create"}</Button>
       </form>
     </Form>
   );

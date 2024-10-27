@@ -9,11 +9,13 @@ const ProjectsPage = async () => {
   const id = await getUserId();
   const projects = await getProjects();
 
+  if (!id) return <div>No User</div>;
+
   return (
     <div className="h-full">
       ProjectsPage
       <FormDialog buttonLabel="Create Project" formTitle="New Project">
-        <ProjectForm ownerId={id ?? ""} />
+        <ProjectForm ownerId={id} />
       </FormDialog>
       <ProjectList projects={projects} />
     </div>

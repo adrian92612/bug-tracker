@@ -8,7 +8,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { registerFormSchema } from "@/lib/schemas";
+import { registerUserFormSchema } from "@/lib/schemas";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,8 +22,8 @@ import { cn } from "@/lib/utils";
 
 export const RegisterForm = () => {
   const [state, action, isPending] = useActionState(registerUser, {});
-  const form = useForm<z.infer<typeof registerFormSchema>>({
-    resolver: zodResolver(registerFormSchema),
+  const form = useForm<z.infer<typeof registerUserFormSchema>>({
+    resolver: zodResolver(registerUserFormSchema),
     defaultValues: {
       name: "",
       email: "",

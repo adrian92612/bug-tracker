@@ -1,6 +1,5 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -78,11 +77,18 @@ export const AddUserForm = () => {
     }
   }, [form, state]);
   return (
-    <Card className="w-full max-w-[500px]">
-      <CardHeader className="text-center relative">
-        <CardTitle className="bg-amber-100 text-2xl h-12 inline-flex items-center justify-center rounded-none shadow-sm shadow-slate-800 absolute w-11/12 -top-[30%] left-1/2 translate-x-[-50%]">
-          Add New User
-        </CardTitle>
+    <Form {...form}>
+      <form
+        ref={formRef}
+        key={resetKey}
+        className="grid gap-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          return form.handleSubmit(() => {
+            action(new FormData(formRef.current!));
+          })(e);
+        }}
+      >
         {state.success !== undefined && (
           <span
             className={cn(
@@ -93,125 +99,109 @@ export const AddUserForm = () => {
             {state.message}
           </span>
         )}
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form
-            ref={formRef}
-            key={resetKey}
-            className="grid gap-4"
-            onSubmit={(e) => {
-              e.preventDefault();
-              return form.handleSubmit(() => {
-                action(new FormData(formRef.current!));
-              })(e);
-            }}
-          >
-            <FormField
-              name="role"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Select
-                      {...field}
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a Role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {roles.map((role) => (
-                            <SelectItem key={role.value} value={role.value}>
-                              {role.label}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <FormField
+          name="role"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Select
+                  {...field}
+                  onValueChange={field.onChange}
+                  value={field.value}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a Role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {roles.map((role) => (
+                        <SelectItem key={role.value} value={role.value}>
+                          {role.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-            <FormField
-              name="name"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="Enter your name"
-                      disabled={isPending}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <FormField
+          name="name"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input
+                  {...field}
+                  placeholder="Enter your name"
+                  disabled={isPending}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-            <FormField
-              name="email"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      type="email"
-                      placeholder="Enter your email address"
-                      disabled={isPending}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <FormField
+          name="email"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input
+                  {...field}
+                  type="email"
+                  placeholder="Enter your email address"
+                  disabled={isPending}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-            <FormField
-              name="password"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      type="password"
-                      placeholder="Enter your password"
-                      disabled={isPending}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <FormField
+          name="password"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input
+                  {...field}
+                  type="password"
+                  placeholder="Enter your password"
+                  disabled={isPending}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-            <FormField
-              name="confirmPassword"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      type="password"
-                      placeholder="Confirm your password"
-                      disabled={isPending}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <FormField
+          name="confirmPassword"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input
+                  {...field}
+                  type="password"
+                  placeholder="Confirm your password"
+                  disabled={isPending}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-            <Button disabled={isPending}>Register</Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+        <Button disabled={isPending}>Register</Button>
+      </form>
+    </Form>
   );
 };

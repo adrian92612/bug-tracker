@@ -41,109 +41,77 @@ export const getUsers = async (): Promise<User[]> => {
   }
 };
 
-export const addUser = async (
+export const upsertUser = async (
   state: FormResponse,
   formData: FormData
 ): Promise<FormResponse> => {
   const data = Object.fromEntries(formData);
-  const parsedData = addUserFormSchema.safeParse(data);
-  console.log("DATA", data);
-  console.log("parsedData", parsedData);
+  const parsedData = data.id
+    ? editUserFormSchema.safeParse(data)
+    : addUserFormSchema.safeParse(data);
 
+  console.log(data);
+  console.log(parsedData.data);
   if (!parsedData.success) {
-    console.log(parsedData.error.flatten().fieldErrors);
     return {
       success: false,
-      message:
-        "Add user failed. Please check the form for errors or try again later.",
+      message: `${
+        data.id ? "Update" : "Create"
+      } user failed. Please check the form for errors or try again later.`,
       fields: parsedData.data,
     };
   }
-  const { role, name, email, password } = parsedData.data;
-  try {
-    const isEmailUnique = await prisma.user.findUnique({
-      where: { email: email },
-    });
 
-    if (isEmailUnique) {
-      return {
-        success: false,
-        message: "Email address is already registered to another user",
-        fields: parsedData.data,
-      };
+  const { id, role, name, email, password } = parsedData.data;
+
+  try {
+    if (id) {
+      await prisma.user.update({
+        where: { id },
+        data: {
+          name,
+          role,
+        },
+      });
+    } else {
+      const isEmailUnique = await prisma.user.findUnique({
+        where: { email: email },
+      });
+
+      if (isEmailUnique) {
+        return {
+          success: false,
+          message: "Email address is already registered to another user",
+          fields: parsedData.data,
+        };
+      }
+
+      const salt = await genSalt(10);
+      const hashedPassword = hashSync(password!, salt);
+
+      await prisma.user.create({
+        data: {
+          id: createId(),
+          role,
+          email: email!,
+          name,
+          password: hashedPassword,
+        },
+      });
     }
 
-    const salt = await genSalt(10);
-    const hashedPassword = hashSync(password, salt);
-
-    await prisma.user.create({
-      data: {
-        id: createId(),
-        role,
-        email,
-        name,
-        password: hashedPassword,
-      },
-    });
-
     revalidatePath("/dashboard/users");
+    revalidatePath(`/dashboard/users/${id}`);
     return {
       success: true,
-      message: `${name} has been added successfully!`,
-    };
-  } catch (error) {
-    console.error("Failed to add user: ", error);
-    return {
-      success: false,
-      message: "Failed to add user, try again later.",
-      fields: parsedData.data,
-    };
-  }
-};
-
-export const editUser = async (
-  state: FormResponse,
-  formData: FormData
-): Promise<FormResponse> => {
-  const data = Object.fromEntries(formData);
-  const parsedData = editUserFormSchema.safeParse(data);
-  console.log("sdkjfjhsdalfhsdakfhsdlkfhj");
-  console.log("DATA", data);
-  console.log("parsedData", parsedData);
-
-  if (!parsedData.success) {
-    console.log(parsedData.error.flatten().fieldErrors);
-    return {
-      success: false,
-      message:
-        "Edit user failed. Please check the form for errors or try again later.",
-      fields: parsedData.data,
-    };
-  }
-  const { id, role, name } = parsedData.data;
-
-  try {
-    await prisma.user.update({
-      where: {
-        id: id,
-      },
-      data: {
-        role,
-        name,
-      },
-    });
-
-    revalidatePath(`/dashboard/users/${id}/edit`);
-    return {
-      success: true,
-      message: "User updated successfully!",
+      message: `${name} ${id ? "updated" : "created"} successfully!`,
       fields: parsedData.data,
     };
   } catch (error) {
-    console.error("Failed to update user: ", error);
+    console.error(`Failed to ${id ? "update" : "create"} user: `, error);
     return {
       success: false,
-      message: "Failed to update user, try again later.",
+      message: `Failed to ${id ? "update" : "create"} user, try again later.`,
       fields: parsedData.data,
     };
   }
