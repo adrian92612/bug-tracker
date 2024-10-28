@@ -80,6 +80,19 @@ export const upsertTicket = async (
   }
 };
 
+export const deleteTicket = async (id: string): Promise<boolean> => {
+  try {
+    await prisma.ticket.delete({
+      where: { id },
+    });
+    revalidatePath("/dashboard/tickets");
+    return true;
+  } catch (error) {
+    console.error("Failed to delete ticket: ", error);
+    return false;
+  }
+};
+
 export const getProjectsForTicketForm = async (): Promise<Project[]> => {
   try {
     return await prisma.project.findMany({});

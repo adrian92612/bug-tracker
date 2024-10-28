@@ -11,6 +11,7 @@ import {
 import { Project, Ticket } from "@prisma/client";
 import { MoreActionsDropdown } from "../more-actions";
 import { TicketForm } from "./ticket-form";
+import { deleteTicket } from "@/lib/actions/ticket-actions";
 
 type ticketCardProps = {
   ticket: Ticket;
@@ -18,10 +19,6 @@ type ticketCardProps = {
 };
 
 const TicketCard = ({ ticket, projects }: ticketCardProps) => {
-  function deleteticket(id: string): Promise<boolean> {
-    throw new Error("Function not implemented.");
-  }
-
   return (
     <Card>
       <CardHeader>
@@ -31,7 +28,7 @@ const TicketCard = ({ ticket, projects }: ticketCardProps) => {
             id={ticket.id}
             name={ticket.title}
             pageHref={`/dashboard/tickets/${ticket.id}`}
-            deleteFn={deleteticket}
+            deleteFn={deleteTicket}
             editForm={<TicketForm ticket={ticket} projects={projects} />}
           />
         </div>
