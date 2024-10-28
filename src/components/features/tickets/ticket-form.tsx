@@ -21,6 +21,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { upsertTicket } from "@/lib/actions/ticket-actions";
 import { ticketFormSchema } from "@/lib/schemas";
+import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Project, Ticket } from "@prisma/client";
 import { useActionState, useRef, useState } from "react";
@@ -63,7 +64,20 @@ export const TicketForm = ({ projects, ticket }: TicketFormProps) => {
         }}
         key={resetKey}
       >
-        {ticket && <Input type="hidden" value={form.getValues().id} />}
+        {state.success !== undefined && (
+          <span
+            className={cn(
+              state.success ? "text-green-700" : "text-red-700",
+              "text-center font-semibold"
+            )}
+          >
+            {state.message}
+          </span>
+        )}
+
+        {ticket && (
+          <Input type="hidden" name="id" value={form.getValues().id} />
+        )}
 
         <FormField
           control={form.control}

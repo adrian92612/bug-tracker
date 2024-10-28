@@ -109,5 +109,5 @@ export const ticketFormSchema = z.object({
     .max(150, "Description is too long"),
   type: TicketTypeEnum.default("BUG"),
   priority: TicketPriorityEnum.default("MEDIUM"),
-  assignedToId: z.string().nullable().optional(),
+  assignedToId: z.string().optional(),
 });

@@ -1,11 +1,21 @@
 "use server";
 import { z } from "zod";
 import { FormResponse } from "./auth-actions";
-import { Project } from "@prisma/client";
+import { Project, Ticket } from "@prisma/client";
 import { prisma } from "../../../prisma/prisma";
 import { ticketFormSchema } from "../schemas";
 import { createId } from "@paralleldrive/cuid2";
 import { getUserId } from "./user-actions";
+import { revalidatePath } from "next/cache";
+
+export const getAllTickets = async (): Promise<Ticket[]> => {
+  try {
+    return await prisma.ticket.findMany();
+  } catch (error) {
+    console.error("Failed to get tickets: ", error);
+    return [];
+  }
+};
 
 export const upsertTicket = async (
   state: FormResponse,
@@ -52,17 +62,20 @@ export const upsertTicket = async (
         },
       });
     }
+
+    revalidatePath("/dashboard/tickets");
+    revalidatePath(`/dashboard/tickets/${id}`);
     return {
       success: true,
       message: "Success",
-      fields: {},
+      fields: parsedData.data,
     };
   } catch (error) {
     console.error(`Failed to create ticket: `, error);
     return {
       success: false,
       message: "Failed",
-      fields: {},
+      fields: parsedData.data,
     };
   }
 };
