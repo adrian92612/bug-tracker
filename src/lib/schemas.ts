@@ -69,26 +69,12 @@ export const addUserFormSchema = baseUserFormSchema.refine(
   }
 );
 
-// export const editUserFormSchema = baseUserFormSchema.omit({
-//   email: true,
-//   password: true,
-//   confirmPassword: true,
-// });
-
 export const editUserFormSchema = baseUserFormSchema
   .omit({ password: true, confirmPassword: true })
   .extend({
     password: z.string().optional(),
     confirmPassword: z.string().optional(),
   });
-// .partial({
-//   password: true,
-//   confirmPassword: true,
-//   email: true,
-// })
-// .refine((data) => {
-//   if (data.password === data.confirmPassword) return true;
-// });
 
 export const projectFormSchema = z.object({
   id: z.string().optional(),
@@ -107,4 +93,21 @@ export const projectFormSchema = z.object({
     required_error: "Deadline is required",
     invalid_type_error: "Invalid date format",
   }),
+});
+
+// const TicketStatusEnum = z.enum(["OPEN", "IN_PROGRESS", "CLOSED"]);
+const TicketPriorityEnum = z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]);
+const TicketTypeEnum = z.enum(["BUG", "TASK", "OTHERS"]);
+
+export const ticketFormSchema = z.object({
+  id: z.string().optional(),
+  projectId: z.string().min(1, "Project ID is required"),
+  title: z.string().min(1, "Title is required").max(50, "Title is too long"),
+  description: z
+    .string()
+    .min(1, "Description is required")
+    .max(150, "Description is too long"),
+  type: TicketTypeEnum.default("BUG"),
+  priority: TicketPriorityEnum.default("MEDIUM"),
+  assignedToId: z.string().nullable().optional(),
 });

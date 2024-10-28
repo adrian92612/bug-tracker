@@ -9,6 +9,7 @@ import { useState } from "react";
 import { FaUsers } from "react-icons/fa";
 import { GrOverview, GrProjects } from "react-icons/gr";
 import { IoIosArrowDropright } from "react-icons/io";
+import { IoTicketOutline } from "react-icons/io5";
 
 const links = [
   {
@@ -25,6 +26,11 @@ const links = [
     icon: <GrProjects />,
     label: "Projects",
     href: "/dashboard/projects",
+  },
+  {
+    icon: <IoTicketOutline />,
+    label: "Tickets",
+    href: "/dashboard/tickets",
   },
 ];
 
