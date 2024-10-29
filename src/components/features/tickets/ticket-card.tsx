@@ -1,5 +1,3 @@
-"use client";
-
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -8,19 +6,42 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Project, Ticket } from "@prisma/client";
 import { MoreActionsDropdown } from "../more-actions";
-import { TicketForm } from "./ticket-form";
 import { deleteTicket } from "@/lib/actions/ticket-actions";
+import { TicketForm } from "./ticket-form";
+import { Project, Ticket } from "@prisma/client";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { useDraggable } from "@dnd-kit/core";
 
-type ticketCardProps = {
+type TicketCardProps = {
   ticket: Ticket;
   projects: Project[];
 };
 
-const TicketCard = ({ ticket, projects }: ticketCardProps) => {
+const TicketCard = ({ ticket, projects }: TicketCardProps) => {
+  const { setNodeRef, attributes, listeners, transform, isDragging } =
+    useDraggable({
+      id: ticket.id,
+      data: ticket,
+    });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+  };
+
+  if (isDragging) {
+    return <div className="border-rose-500 border-2 rounded-sm h-52"></div>;
+  }
+
   return (
-    <Card>
+    <Card
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="cursor-grab h-52"
+    >
       <CardHeader>
         <div className="flex items-center justify-between">
           <Badge variant="ongoing">{ticket.status.toLowerCase()}</Badge>
@@ -40,23 +61,4 @@ const TicketCard = ({ ticket, projects }: ticketCardProps) => {
   );
 };
 
-type TicketListProps = {
-  tickets: Ticket[];
-  projects: Project[];
-};
-
-const TicketList = ({ tickets, projects }: TicketListProps) => {
-  return (
-    <section>
-      <ul>
-        {tickets.map((ticket) => (
-          <li key={ticket.id}>
-            <TicketCard ticket={ticket} projects={projects} />
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-};
-
-export default TicketList;
+export default TicketCard;

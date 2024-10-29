@@ -80,6 +80,31 @@ export const upsertTicket = async (
   }
 };
 
+type updateTicketStatusProps = {
+  id: string;
+  status: "OPEN" | "IN_PROGRESS" | "IN_REVIEW" | "RESOLVED" | "CLOSED";
+};
+
+export const updateTicketStatus = async ({
+  id,
+  status,
+}: updateTicketStatusProps): Promise<boolean> => {
+  try {
+    console.log(id, status);
+    await prisma.ticket.update({
+      where: { id },
+      data: {
+        status,
+      },
+    });
+    revalidatePath("/dashboard/tickets");
+    return true;
+  } catch (error) {
+    console.error("Failed to update ticket status: ", error);
+    return false;
+  }
+};
+
 export const deleteTicket = async (id: string): Promise<boolean> => {
   try {
     await prisma.ticket.delete({

@@ -1,6 +1,7 @@
 import { FormDialog } from "@/components/features/form-dialog";
 import { TicketForm } from "@/components/features/tickets/ticket-form";
-import TicketList from "@/components/features/tickets/ticket-list";
+import TicketKanban from "@/components/features/tickets/ticket-kanban";
+
 import {
   getAllTickets,
   getProjectsForTicketForm,
@@ -11,11 +12,10 @@ const TicketsPage = async () => {
   const tickets = await getAllTickets();
   return (
     <div>
-      TicketsPage
       <FormDialog buttonLabel="Create a Ticket" formTitle="New Ticket">
         <TicketForm projects={projects} />
       </FormDialog>
-      <TicketList tickets={tickets} projects={projects} />
+      <TicketKanban tickets={tickets} projects={projects} />
     </div>
   );
 };
