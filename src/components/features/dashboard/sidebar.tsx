@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { Role } from "@prisma/client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -10,6 +11,10 @@ import { FaUsers } from "react-icons/fa";
 import { GrOverview, GrProjects } from "react-icons/gr";
 import { IoIosArrowDropright } from "react-icons/io";
 import { IoTicketOutline } from "react-icons/io5";
+
+type SideBarProps = {
+  role: Role;
+};
 
 const links = [
   {
@@ -34,11 +39,16 @@ const links = [
   },
 ];
 
-const SideBarLinks = () => {
+const SideBarLinks = ({ role }: SideBarProps) => {
   const pathname = usePathname();
+  const filteredLinks =
+    role !== "ADMIN"
+      ? links.filter((link) => link.label !== "User Management")
+      : links;
+
   return (
     <ul className="space-y-2">
-      {links.map((link) => (
+      {filteredLinks.map((link) => (
         <li key={link.label}>
           <Link
             href={link.href}
@@ -58,7 +68,7 @@ const SideBarLinks = () => {
   );
 };
 
-export const SideBarSheet = () => {
+export const SideBarSheet = ({ role }: SideBarProps) => {
   return (
     <div className="flex items-center md:hidden">
       <Sheet>
@@ -77,14 +87,14 @@ export const SideBarSheet = () => {
         >
           <h1 className="font-bold mb-5 text-center">ProjectSync</h1>
 
-          <SideBarLinks />
+          <SideBarLinks role={role} />
         </SheetContent>
       </Sheet>
     </div>
   );
 };
 
-export const SideBar = () => {
+export const SideBar = ({ role }: SideBarProps) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   return (
     <div
@@ -106,7 +116,7 @@ export const SideBar = () => {
           )}
         />
       </Button>
-      <SideBarLinks />
+      <SideBarLinks role={role} />
     </div>
   );
 };
