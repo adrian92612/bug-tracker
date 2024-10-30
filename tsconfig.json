@@ -18,7 +18,10 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@auth/core/adapters": ["./node_modules/@auth/core/adapters"],
+      "@auth/prisma-adapter": ["./node_modules/@auth/prisma-adapter"],
+      "next-auth": ["./node_modules/next-auth"]
     },
     "target": "ES2017"
   },

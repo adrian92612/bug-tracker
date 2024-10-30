@@ -1,6 +1,6 @@
 "use server";
 
-import { User } from "@prisma/client";
+import { Role, User } from "@prisma/client";
 import { prisma } from "../../../prisma/prisma";
 import { auth } from "@/auth";
 import { FormResponse } from "./auth-actions";
@@ -12,6 +12,11 @@ import { revalidatePath } from "next/cache";
 export const getUserId = async (): Promise<string | undefined> => {
   const session = await auth();
   return session?.user?.id;
+};
+
+export const getUserRole = async (): Promise<Role> => {
+  const session = await auth();
+  return session?.user.role;
 };
 
 export const getUser = async (id?: string): Promise<User | null> => {

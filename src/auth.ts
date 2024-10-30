@@ -7,6 +7,7 @@ import { AdapterUser } from "next-auth/adapters";
 import { prisma } from "../prisma/prisma";
 import { createId } from "@paralleldrive/cuid2";
 import { compare } from "bcrypt-ts";
+import { Role } from "@prisma/client";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
@@ -24,6 +25,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         emailVerified: user.emailVerified,
         name: user.name ?? "Anonymous User",
         image: user.image,
+        role: Role.USER,
       };
 
       return await prisma.user.create({ data });
@@ -55,12 +57,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.role = user.role;
       }
 
       return token;
     },
     async session({ session, token }) {
-      session.user = { id: token.id as string } as AdapterUser & { id: string };
+      // session.user = { id: token.id as string } as AdapterUser & { id: string };
+      session.user = {
+        id: token.id as string,
+        role: token.role as string,
+      };
       return session;
     },
   },

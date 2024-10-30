@@ -36,7 +36,7 @@ export const LoginForm = () => {
   const router = useRouter();
 
   useEffect(() => {
-    if (state.success) router.push("/dashboard");
+    if (state.success) router.push("/dashboard/overview");
   }, [router, state.success]);
 
   return (

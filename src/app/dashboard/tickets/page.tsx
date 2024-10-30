@@ -6,10 +6,13 @@ import {
   getAllTickets,
   getProjectsForTicketForm,
 } from "@/lib/actions/ticket-actions";
+import { getUserRole } from "@/lib/actions/user-actions";
 
 const TicketsPage = async () => {
   const projects = await getProjectsForTicketForm();
   const tickets = await getAllTickets();
+  const role = await getUserRole();
+  console.log("ROLE", role);
   return (
     <div>
       <FormDialog buttonLabel="Create a Ticket" formTitle="New Ticket">
