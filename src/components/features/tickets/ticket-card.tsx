@@ -10,7 +10,6 @@ import { MoreActionsDropdown } from "../more-actions";
 import { deleteTicket } from "@/lib/actions/ticket-actions";
 import { TicketForm } from "./ticket-form";
 import { Project, Ticket } from "@prisma/client";
-import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useDraggable } from "@dnd-kit/core";
 

@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { Role } from "@prisma/client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -11,10 +10,7 @@ import { FaUsers } from "react-icons/fa";
 import { GrOverview, GrProjects } from "react-icons/gr";
 import { IoIosArrowDropright } from "react-icons/io";
 import { IoTicketOutline } from "react-icons/io5";
-
-type SideBarProps = {
-  role: Role;
-};
+import { useUserRole } from "../../../../context/role-provider";
 
 const links = [
   {
@@ -39,36 +35,39 @@ const links = [
   },
 ];
 
-const SideBarLinks = ({ role }: SideBarProps) => {
+const SideBarLinks = () => {
   const pathname = usePathname();
+  const role = useUserRole();
   const filteredLinks =
     role !== "ADMIN"
       ? links.filter((link) => link.label !== "User Management")
       : links;
 
   return (
-    <ul className="space-y-2">
-      {filteredLinks.map((link) => (
-        <li key={link.label}>
-          <Link
-            href={link.href}
-            className={cn(
-              "w-full overflow-hidden flex items-center gap-3 pl-3 h-10 transition duration-300",
-              pathname.startsWith(link.href)
-                ? "bg-slate-800 text-slate-100 font-bold"
-                : ""
-            )}
-          >
-            <span className="text-2xl">{link.icon}</span>
-            {link.label}
-          </Link>
-        </li>
-      ))}
-    </ul>
+    <nav>
+      <ul className="space-y-2">
+        {filteredLinks.map((link) => (
+          <li key={link.label}>
+            <Link
+              href={link.href}
+              className={cn(
+                "w-full overflow-hidden flex items-center gap-3 pl-3 h-10 transition duration-300",
+                pathname.startsWith(link.href)
+                  ? "bg-slate-800 text-slate-100 font-bold"
+                  : ""
+              )}
+            >
+              <span className="text-2xl">{link.icon}</span>
+              {link.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 };
 
-export const SideBarSheet = ({ role }: SideBarProps) => {
+export const SideBarSheet = () => {
   return (
     <div className="flex items-center md:hidden">
       <Sheet>
@@ -87,14 +86,14 @@ export const SideBarSheet = ({ role }: SideBarProps) => {
         >
           <h1 className="font-bold mb-5 text-center">ProjectSync</h1>
 
-          <SideBarLinks role={role} />
+          <SideBarLinks />
         </SheetContent>
       </Sheet>
     </div>
   );
 };
 
-export const SideBar = ({ role }: SideBarProps) => {
+export const SideBar = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   return (
     <div
@@ -116,7 +115,7 @@ export const SideBar = ({ role }: SideBarProps) => {
           )}
         />
       </Button>
-      <SideBarLinks role={role} />
+      <SideBarLinks />
     </div>
   );
 };

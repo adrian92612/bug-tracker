@@ -97,7 +97,7 @@ const TicketKanban = ({ tickets, projects }: TicketListProps) => {
     }
   };
   const handleDragOver = async (e: DragOverEvent) => {
-    const { active, over } = e;
+    const { over } = e;
     if (over) {
       setActiveColumn(over.id as TicketColumn["id"]);
     } else {

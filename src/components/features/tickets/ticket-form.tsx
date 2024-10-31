@@ -14,6 +14,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -23,10 +24,12 @@ import { upsertTicket } from "@/lib/actions/ticket-actions";
 import { ticketFormSchema } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Project, Ticket } from "@prisma/client";
-import { useActionState, useRef, useState } from "react";
+import { Project, Ticket, User } from "@prisma/client";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useUserRole } from "../../../../context/role-provider";
+import { getUsers } from "@/lib/actions/user-actions";
 
 type TicketFormProps = {
   projects: Project[];
@@ -39,6 +42,9 @@ const ticketPriorities = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
 export const TicketForm = ({ projects, ticket }: TicketFormProps) => {
   const [state, action, isPending] = useActionState(upsertTicket, {});
   const [resetKey, setResetKey] = useState<number>(0);
+  const [users, setUsers] = useState<User[]>([]);
+  const role = useUserRole();
+  const isAdminOrManager = role === "ADMIN" || role === "MANAGER";
   const formRef = useRef<HTMLFormElement>(null);
   const form = useForm<z.infer<typeof ticketFormSchema>>({
     resolver: zodResolver(ticketFormSchema),
@@ -49,8 +55,31 @@ export const TicketForm = ({ projects, ticket }: TicketFormProps) => {
       description: ticket?.description ?? "",
       priority: ticket?.priority ?? "MEDIUM",
       type: ticket?.type ?? "BUG",
+      assignedToId: ticket?.assignedToId ?? "",
     },
   });
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const users = await getUsers();
+        setUsers(users);
+      } catch (error) {
+        console.error("Failed to fetch users: ", error);
+      }
+    };
+    if (isAdminOrManager) {
+      fetchUser();
+    }
+  }, [isAdminOrManager]);
+
+  useEffect(() => {
+    if (state.success && !ticket) {
+      form.reset();
+      setResetKey((prev) => prev + 1);
+    }
+  }, [form, state.success, ticket]);
+
   return (
     <Form {...form}>
       <form
@@ -199,6 +228,41 @@ export const TicketForm = ({ projects, ticket }: TicketFormProps) => {
             </FormItem>
           )}
         />
+
+        {isAdminOrManager && !!users?.length && (
+          <FormField
+            control={form.control}
+            name="assignedToId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Assign Ticket</FormLabel>
+                <Select
+                  {...field}
+                  onValueChange={field.onChange}
+                  value={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Assign ticket to?" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="noone">No one</SelectItem>
+                      {users.map((user) => (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
         <Button disabled={isPending}>Submit</Button>
       </form>
     </Form>

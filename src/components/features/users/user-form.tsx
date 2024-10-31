@@ -118,26 +118,26 @@ export const UserForm = ({ user }: EditUserForm) => {
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormControl>
-                <Select
-                  {...field}
-                  onValueChange={field.onChange}
-                  value={field.value}
-                >
+              <Select
+                {...field}
+                onValueChange={field.onChange}
+                value={field.value}
+              >
+                <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a Role" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {roles.map((role) => (
-                        <SelectItem key={role.value} value={role.value}>
-                          {role.label}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </FormControl>
+                </FormControl>
+                <SelectContent>
+                  <SelectGroup>
+                    {roles.map((role) => (
+                      <SelectItem key={role.value} value={role.value}>
+                        {role.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}

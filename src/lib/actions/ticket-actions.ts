@@ -1,5 +1,4 @@
 "use server";
-import { z } from "zod";
 import { FormResponse } from "./auth-actions";
 import { Project, Ticket } from "@prisma/client";
 import { prisma } from "../../../prisma/prisma";
@@ -34,7 +33,8 @@ export const upsertTicket = async (
       fields: parsedData.data,
     };
   }
-  const { id, projectId, title, description, type, priority } = parsedData.data;
+  const { id, projectId, title, description, type, priority, assignedToId } =
+    parsedData.data;
   try {
     if (id) {
       await prisma.ticket.update({
@@ -45,6 +45,7 @@ export const upsertTicket = async (
           description,
           type,
           priority,
+          assignedToId,
         },
       });
     } else {
@@ -59,6 +60,7 @@ export const upsertTicket = async (
           type,
           priority,
           createdById: userId,
+          assignedToId,
         },
       });
     }
