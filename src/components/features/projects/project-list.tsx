@@ -18,7 +18,7 @@ type ProjectCardProps = {
 
 const ProjectCard = ({ project }: ProjectCardProps) => {
   return (
-    <Card className="rounded-none">
+    <Card className="rounded-none h-full flex flex-col">
       <CardHeader className="">
         <div className="flex items-center justify-between">
           <Badge variant="ongoing">{project.status.toLowerCase()}</Badge>
@@ -56,7 +56,7 @@ const ProjectList = async ({ projects }: ProjectListProps) => {
   return (
     <div>
       <h2>Projects</h2>
-      <ul className="grid p-2 gap-5">
+      <ul className="grid sm:grid-cols-2 lg:grid-cols-3 p-2 gap-5">
         {projects.map((project) => (
           <li key={project.id}>
             <ProjectCard project={project} />

@@ -7,7 +7,7 @@ import { getUserId } from "@/lib/actions/user-actions";
 
 const ProjectsPage = async () => {
   const id = await getUserId();
-  const projects = await getProjects();
+  const projects = await getProjects(id ? id : undefined);
 
   if (!id) return <div>No User</div>;
 

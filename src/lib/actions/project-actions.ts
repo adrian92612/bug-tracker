@@ -15,44 +15,130 @@ export type ProjectWithOMT = Project & {
   tickets: Pick<Ticket, "id" | "title" | "status" | "priority">[];
 };
 
-export const getProjects = async (): Promise<ProjectWithOMT[]> => {
+export const getProjects = async (
+  userId?: string
+): Promise<ProjectWithOMT[]> => {
   try {
-    return await prisma.project.findMany({
-      include: {
-        owner: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
+    if (userId) {
+      return await prisma.project.findMany({
+        where: {
+          OR: [
+            { ownerId: userId },
+            {
+              members: {
+                some: {
+                  userId,
+                },
+              },
+            },
+          ],
         },
-        members: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                role: true,
+        include: {
+          owner: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+          members: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  role: true,
+                },
               },
             },
           },
-        },
-        tickets: {
-          select: {
-            id: true,
-            title: true,
-            status: true,
-            priority: true,
+          tickets: {
+            select: {
+              id: true,
+              title: true,
+              status: true,
+              priority: true,
+            },
           },
         },
-      },
-    });
+      });
+    } else {
+      return await prisma.project.findMany({
+        include: {
+          owner: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+          members: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  role: true,
+                },
+              },
+            },
+          },
+          tickets: {
+            select: {
+              id: true,
+              title: true,
+              status: true,
+              priority: true,
+            },
+          },
+        },
+      });
+    }
   } catch (error) {
     console.error("Failed to get projects: ", error);
     return [];
   }
 };
+// export const getProjects = async (): Promise<ProjectWithOMT[]> => {
+//   try {
+//     return await prisma.project.findMany({
+//       include: {
+//         owner: {
+//           select: {
+//             id: true,
+//             name: true,
+//             email: true,
+//           },
+//         },
+//         members: {
+//           include: {
+//             user: {
+//               select: {
+//                 id: true,
+//                 name: true,
+//                 email: true,
+//                 role: true,
+//               },
+//             },
+//           },
+//         },
+//         tickets: {
+//           select: {
+//             id: true,
+//             title: true,
+//             status: true,
+//             priority: true,
+//           },
+//         },
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Failed to get projects: ", error);
+//     return [];
+//   }
+// };
 
 export const upsertProject = async (
   state: FormResponse,
