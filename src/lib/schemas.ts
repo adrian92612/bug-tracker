@@ -76,6 +76,8 @@ export const editUserFormSchema = baseUserFormSchema
     confirmPassword: z.string().optional(),
   });
 
+const projectStatus = z.enum(["ONGOING", "CLOSED", "OVERDUE"]);
+
 export const projectFormSchema = z.object({
   id: z.string().optional(),
   ownerId: z.string().trim().min(1, "Owner Id is required"),
@@ -93,6 +95,7 @@ export const projectFormSchema = z.object({
     required_error: "Deadline is required",
     invalid_type_error: "Invalid date format",
   }),
+  status: projectStatus.optional(),
 });
 
 // const TicketStatusEnum = z.enum(["OPEN", "IN_PROGRESS", "CLOSED"]);

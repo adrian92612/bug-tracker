@@ -22,7 +22,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { upsertTicket } from "@/lib/actions/ticket-actions";
 import { ticketFormSchema } from "@/lib/schemas";
-import { cn } from "@/lib/utils";
+import { cn, isAdminOrManager } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Project, Ticket, User } from "@prisma/client";
 import { useActionState, useEffect, useRef, useState } from "react";
@@ -44,7 +44,7 @@ export const TicketForm = ({ projects, ticket }: TicketFormProps) => {
   const [resetKey, setResetKey] = useState<number>(0);
   const [users, setUsers] = useState<User[]>([]);
   const role = useUserRole();
-  const isAdminOrManager = role === "ADMIN" || role === "MANAGER";
+  const adminOrManager = isAdminOrManager(role);
   const formRef = useRef<HTMLFormElement>(null);
   const form = useForm<z.infer<typeof ticketFormSchema>>({
     resolver: zodResolver(ticketFormSchema),
@@ -68,10 +68,10 @@ export const TicketForm = ({ projects, ticket }: TicketFormProps) => {
         console.error("Failed to fetch users: ", error);
       }
     };
-    if (isAdminOrManager) {
+    if (adminOrManager) {
       fetchUser();
     }
-  }, [isAdminOrManager]);
+  }, [adminOrManager]);
 
   useEffect(() => {
     if (state.success && !ticket) {
@@ -229,7 +229,7 @@ export const TicketForm = ({ projects, ticket }: TicketFormProps) => {
           )}
         />
 
-        {isAdminOrManager && !!users?.length && (
+        {adminOrManager && !!users?.length && (
           <FormField
             control={form.control}
             name="assignedToId"

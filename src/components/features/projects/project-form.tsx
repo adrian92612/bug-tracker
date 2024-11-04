@@ -161,6 +161,38 @@ export const ProjectForm = ({ ownerId, project }: ProjectFormProps) => {
           )}
         />
 
+        {/* {project && (
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Project Status</FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    className="flex"
+                  >
+                    {projectStatus.map((project) => (
+                      <FormItem
+                        key={project}
+                        className="flex space-x-2 space-y-0 items-center text-sm"
+                      >
+                        <FormControl>
+                          <RadioGroupItem value={project} />
+                        </FormControl>
+                        <FormLabel className="m-0">{project}</FormLabel>
+                      </FormItem>
+                    ))}
+                  </RadioGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )} */}
+
         <Button disabled={isPending}>{project ? "Update" : "Create"}</Button>
       </form>
     </Form>
