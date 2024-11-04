@@ -51,7 +51,7 @@ const SideBarLinks = () => {
             <Link
               href={link.href}
               className={cn(
-                "w-full overflow-hidden flex items-center gap-3 pl-3 h-10 transition duration-300",
+                "w-full overflow-hidden flex items-center gap-3 pl-3 h-10 whitespace-nowrap transition duration-300",
                 pathname.startsWith(link.href)
                   ? "bg-slate-800 text-slate-100 font-bold"
                   : ""

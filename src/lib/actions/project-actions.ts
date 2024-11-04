@@ -5,7 +5,13 @@ import { prisma } from "../../../prisma/prisma";
 import { projectFormSchema } from "../schemas";
 import { FormResponse } from "./auth-actions";
 import { revalidatePath } from "next/cache";
-import { Project, ProjectStatus, Ticket, User } from "@prisma/client";
+import {
+  Project,
+  ProjectAssignment,
+  ProjectStatus,
+  Ticket,
+  User,
+} from "@prisma/client";
 
 export type ProjectWithOMT = Project & {
   owner: Pick<User, "id" | "name" | "email">;
@@ -13,6 +19,34 @@ export type ProjectWithOMT = Project & {
     user: Pick<User, "id" | "name" | "email" | "role">;
   }[];
   tickets: Pick<Ticket, "id" | "title" | "status" | "priority">[];
+};
+
+export type FullProjectDetails = Project & {
+  members: (ProjectAssignment & {
+    user: User;
+  })[];
+  tickets: Ticket[];
+};
+
+export const getProject = async (
+  id: string
+): Promise<FullProjectDetails | null> => {
+  try {
+    return await prisma.project.findUnique({
+      where: { id },
+      include: {
+        members: {
+          include: {
+            user: true,
+          },
+        },
+        tickets: true,
+      },
+    });
+  } catch (error) {
+    console.error("Failed to get project details: ", error);
+    return null;
+  }
 };
 
 export const getProjects = async (
@@ -186,13 +220,27 @@ export const changeProjectStatus = async (
   status: ProjectStatus
 ) => {
   try {
-    await prisma.project.update({
-      where: {
-        id: projectId,
-      },
-      data: {
-        status,
-      },
+    const currentDate = new Date();
+    await prisma.$transaction(async (tx) => {
+      // Step 1: Retrieve the project deadline
+      const project = await tx.project.findUnique({
+        where: { id: projectId },
+        select: { deadline: true },
+      });
+
+      if (!project) {
+        throw new Error("Project not found");
+      }
+
+      // Step 2: Determine status based on deadline
+      const updatedStatus =
+        currentDate > project.deadline ? ProjectStatus.OVERDUE : status;
+
+      // Step 3: Update project status
+      await tx.project.update({
+        where: { id: projectId },
+        data: { status: updatedStatus },
+      });
     });
     revalidatePath("/dashboard/projects");
     revalidatePath(`/dashboard/projects/${projectId}`);

@@ -18,19 +18,32 @@ import { MoreActionsDropdown } from "../more-actions";
 import { ProjectForm } from "./project-form";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { useUserRole } from "../../../../context/role-provider";
+import { isAdminOrManager } from "@/lib/utils";
 
 type ProjectCardProps = {
   project: ProjectWithOMT;
 };
 
 export const ProjectCard = ({ project }: ProjectCardProps) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const role = useUserRole();
   const handleStatus = async () => {
-    if (project.status === "CLOSED") {
-      await changeProjectStatus(project.id, "ONGOING");
-    } else {
-      await changeProjectStatus(project.id, "CLOSED");
+    try {
+      setIsLoading(true);
+      if (project.status === "CLOSED") {
+        await changeProjectStatus(project.id, "ONGOING");
+      } else {
+        await changeProjectStatus(project.id, "CLOSED");
+      }
+    } catch (error) {
+      console.error("Failed to update project status: ", error);
+    } finally {
+      setIsLoading(false);
     }
   };
+
   return (
     <Card className="rounded-none h-full flex flex-col">
       <CardHeader className="">
@@ -59,9 +72,16 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
         <div>Deadline: {format(new Date(project.deadline), "PPP")}</div>
       </CardContent>
       <CardFooter className="justify-end">
-        <Button size="sm" variant="outline" onClick={handleStatus}>
-          {project.status === "CLOSED" ? "Re-open" : "Close"}
-        </Button>
+        {isAdminOrManager(role) && (
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={isLoading}
+            onClick={handleStatus}
+          >
+            {project.status === "CLOSED" ? "Re-open" : "Close"}
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );
