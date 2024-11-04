@@ -16,6 +16,33 @@ export const getAllTickets = async (): Promise<Ticket[]> => {
   }
 };
 
+export const getTickets = async (userId?: string): Promise<Ticket[]> => {
+  try {
+    if (userId) {
+      return await prisma.ticket.findMany({
+        where: {
+          OR: [
+            { assignedToId: userId },
+            { createdById: userId },
+            {
+              members: {
+                some: {
+                  userId: userId,
+                },
+              },
+            },
+          ],
+        },
+      });
+    } else {
+      return await prisma.ticket.findMany();
+    }
+  } catch (error) {
+    console.error("Failed to get tickets: ", error);
+    return [];
+  }
+};
+
 export const upsertTicket = async (
   state: FormResponse,
   formData: FormData

@@ -5,6 +5,7 @@ import {
   TicketPriority,
   TicketStatus,
   TicketType,
+  User,
 } from "@prisma/client";
 import { genSalt, hashSync } from "bcrypt-ts";
 
@@ -182,6 +183,7 @@ const tickets = [
 
 async function main() {
   console.log("Clearing existing data...");
+  await prisma.ticketAssignment.deleteMany();
   await prisma.projectAssignment.deleteMany();
   await prisma.ticket.deleteMany();
   await prisma.project.deleteMany();
@@ -223,6 +225,13 @@ async function main() {
   });
   const contributors = await prisma.user.findMany({
     where: { role: "CONTRIBUTOR" },
+  });
+
+  const allMembers = [...developers, ...contributors];
+  const memberCount: { [userId: string]: number } = {};
+  // Initialize each user's membership count to zero
+  allMembers.forEach((member) => {
+    memberCount[member.id] = 0;
   });
 
   // Create projects with members and tickets
@@ -268,7 +277,16 @@ async function main() {
         // Create 4 tickets for each project
         await Promise.all(
           tickets.map(async (ticket) => {
-            await prisma.ticket.create({
+            const assigneeCandidates = [
+              ...projectDevelopers,
+              ...projectContributors,
+            ];
+            const assignee =
+              assigneeCandidates[
+                Math.floor(Math.random() * assigneeCandidates.length)
+              ];
+
+            const createdTicket = await prisma.ticket.create({
               data: {
                 id: createId(),
                 title: ticket.title,
@@ -277,9 +295,42 @@ async function main() {
                 priority: ticket.priority,
                 type: ticket.type,
                 projectId: createdProject.id,
-                createdById: manager.id, // Assuming project owner creates tickets
+                createdById: manager.id,
+                assignedToId: assignee.id, // Assign ticket to a developer or contributor
               },
             });
+
+            // Select 1-3 members excluding the assigned user
+            const remainingCandidates = assigneeCandidates.filter((member) => {
+              // Ensure that each member does not exceed 8 tickets and is at least assigned to 3
+              return member.id !== assignee.id && memberCount[member.id] < 8;
+            });
+
+            // Select a random number of members between 1 and the number of available candidates (max 3)
+            const numberOfMembers = Math.min(
+              remainingCandidates.length,
+              Math.floor(Math.random() * 3) + 1
+            );
+            const ticketMembers = getRandomElements(
+              remainingCandidates,
+              numberOfMembers
+            );
+
+            await Promise.all(
+              ticketMembers.map(async (member) => {
+                await prisma.ticketAssignment.create({
+                  data: {
+                    userId: member.id,
+                    ticketId: createdTicket.id,
+                  },
+                });
+                memberCount[member.id] += 1; // Increment the member's ticket count
+              })
+            );
+
+            console.log(
+              `Ticket "${createdTicket.title}" has been created and assigned`
+            );
           })
         );
 
@@ -291,6 +342,32 @@ async function main() {
       }
     })
   );
+  await fillMinimumMemberTickets(memberCount, allMembers);
+}
+
+// Helper function to ensure every member has at least 3 tickets
+async function fillMinimumMemberTickets(
+  memberCount: { [userId: string]: number },
+  allMembers: User[]
+) {
+  for (const member of allMembers) {
+    while (memberCount[member.id] < 3) {
+      // Assign this member to a random ticket until they have 3 memberships
+      const randomTicket = await prisma.ticket.findFirst({
+        orderBy: { createdAt: "desc" }, // or another order depending on your needs
+      });
+      if (randomTicket) {
+        await prisma.ticketAssignment.create({
+          data: {
+            userId: member.id,
+            ticketId: randomTicket.id,
+          },
+        });
+        memberCount[member.id] += 1;
+        console.log(`Added "${member.name}" to ticket "${randomTicket.title}"`);
+      }
+    }
+  }
 }
 
 function getRandomElements<T>(array: T[], count: number): T[] {

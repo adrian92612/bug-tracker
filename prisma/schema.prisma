@@ -35,6 +35,9 @@ model User {
   // Tickets assigned to the user
   ticketsAssignedTo Ticket[] @relation("AssignedTo")
 
+  // Tickets the user is a member of
+  ticketMembers TicketAssignment[] @relation("TicketMember")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -79,6 +82,8 @@ model Ticket {
   createdBy   User   @relation(name: "CreatedBy", fields: [createdById], references: [id])
   createdById String
 
+  members TicketAssignment[] @relation("TicketMember")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -91,6 +96,16 @@ model ProjectAssignment {
   project Project @relation(fields: [projectId], references: [id])
 
   @@id([userId, projectId])
+}
+
+model TicketAssignment {
+  userId   String
+  ticketId String
+
+  user   User   @relation("TicketMember", fields: [userId], references: [id])
+  ticket Ticket @relation("TicketMember", fields: [ticketId], references: [id])
+
+  @@id([userId, ticketId])
 }
 
 enum ProjectStatus {
