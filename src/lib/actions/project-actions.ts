@@ -22,6 +22,7 @@ export type ProjectWithOMT = Project & {
 };
 
 export type FullProjectDetails = Project & {
+  owner: User;
   members: (ProjectAssignment & {
     user: User;
   })[];
@@ -35,6 +36,7 @@ export const getProject = async (
     return await prisma.project.findUnique({
       where: { id },
       include: {
+        owner: true,
         members: {
           include: {
             user: true,
