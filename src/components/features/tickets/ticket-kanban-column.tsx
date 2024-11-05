@@ -50,7 +50,6 @@ export const TicketKanbanColumn = ({
           ))}
         </ul>
       </CardContent>
-      <CardFooter></CardFooter>
     </Card>
   );
 };

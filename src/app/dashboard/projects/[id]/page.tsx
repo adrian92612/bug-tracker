@@ -17,8 +17,8 @@ const ProjectDetailsPage = async ({ params }: ProjectDetailsPageProps) => {
   }
 
   return (
-    <div className="p-4 grid md:grid-cols-2 gap-4">
-      <div className="space-y-4">
+    <div className="p-4 grid md:grid-cols-2 gap-4 min-h-full">
+      <div className="flex flex-col gap-4">
         <ProjectInformation project={project} />
         <ProjectPersonnel project={project} />
       </div>

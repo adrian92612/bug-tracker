@@ -22,7 +22,7 @@ const ProjectTicketCard = ({ ticket }: ProjectTicketCardProps) => {
         <CardDescription>{ticket.description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center justify-end gap-1">
+        <div className="flex items-center justify-end gap-1 flex-wrap">
           <Badge>{ticket.status}</Badge>
           <Badge>{ticket.priority}</Badge>
           <Badge>{ticket.type}</Badge>
@@ -39,11 +39,11 @@ type ProjectTicketsProps = {
 export const ProjectTickets = ({ tickets }: ProjectTicketsProps) => {
   return (
     <section>
-      <Card>
+      <Card className="h-full flex flex-col pb-5">
         <CardHeader>
           <CardTitle className="text-xl">Tickets</CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-col gap-2">
+        <CardContent className="flex flex-col gap-2 max-h-[600px] py-2 overflow-y-auto">
           {tickets.map((ticket) => (
             <ProjectTicketCard key={ticket.id} ticket={ticket} />
           ))}

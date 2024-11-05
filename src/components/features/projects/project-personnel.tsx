@@ -10,8 +10,8 @@ type ProjectPersonnelProps = {
 
 export const ProjectPersonnel = ({ project }: ProjectPersonnelProps) => {
   return (
-    <section>
-      <Card>
+    <section className="grow">
+      <Card className="h-full">
         <CardHeader>
           <CardTitle className="text-xl">Personnel</CardTitle>
           <LabelValue label="Owner: " value={project.owner.name} />
