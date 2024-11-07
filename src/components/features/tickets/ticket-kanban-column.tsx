@@ -1,10 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { KanbanTicket, TicketColumn } from "./ticket-kanban";
 import TicketCard from "./ticket-card";
 import { Project } from "@prisma/client";
