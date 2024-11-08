@@ -1,6 +1,6 @@
 "use server";
 import { FormResponse } from "./auth-actions";
-import { Project, Ticket, User } from "@prisma/client";
+import { Project, Ticket, TicketStatus, User } from "@prisma/client";
 import { prisma } from "../../../prisma/prisma";
 import { ticketFormSchema } from "../schemas";
 import { createId } from "@paralleldrive/cuid2";
@@ -142,7 +142,7 @@ export const upsertTicket = async (
 
 type updateTicketStatusProps = {
   id: string;
-  status: "OPEN" | "IN_PROGRESS" | "IN_REVIEW" | "RESOLVED" | "CLOSED";
+  status: TicketStatus;
 };
 
 export const updateTicketStatus = async ({

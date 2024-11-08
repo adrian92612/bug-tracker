@@ -6,8 +6,8 @@ import { getUsers } from "@/lib/actions/user-actions";
 
 const UsersPage = async () => {
   const users = await getUsers();
-  const noRoleUsers = users.filter((user) => user.role === "USER");
-  const roleUsers = users.filter((user) => user.role !== "USER");
+  const noRoleUsers = users.filter((user) => user.role === "None");
+  const roleUsers = users.filter((user) => user.role !== "None");
   return (
     <div className="p-2 space-y-5">
       <div className="flex items-center justify-end">

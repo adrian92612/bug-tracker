@@ -23,36 +23,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { upsertUser } from "@/lib/actions/user-actions";
-import { User } from "@prisma/client";
+import { Role, User } from "@prisma/client";
 import { z } from "zod";
-
-type rolesType = {
-  label: string;
-  value: "ADMIN" | "MANAGER" | "DEVELOPER" | "CONTRIBUTOR" | "USER";
-};
-
-const roles: rolesType[] = [
-  {
-    label: "Admin",
-    value: "ADMIN",
-  },
-  {
-    label: "Manager",
-    value: "MANAGER",
-  },
-  {
-    label: "Developer",
-    value: "DEVELOPER",
-  },
-  {
-    label: "Contributor",
-    value: "CONTRIBUTOR",
-  },
-  {
-    label: "User",
-    value: "USER",
-  },
-];
 
 type EditUserForm = {
   user?: User;
@@ -130,9 +102,9 @@ export const UserForm = ({ user }: EditUserForm) => {
                 </FormControl>
                 <SelectContent>
                   <SelectGroup>
-                    {roles.map((role) => (
-                      <SelectItem key={role.value} value={role.value}>
-                        {role.label}
+                    {Object.values(Role).map((role) => (
+                      <SelectItem key={role} value={role}>
+                        {role}
                       </SelectItem>
                     ))}
                   </SelectGroup>

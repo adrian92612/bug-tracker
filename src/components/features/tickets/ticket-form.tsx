@@ -24,7 +24,13 @@ import { upsertTicket } from "@/lib/actions/ticket-actions";
 import { ticketFormSchema } from "@/lib/schemas";
 import { cn, isAdminOrManager } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Project, Ticket, User } from "@prisma/client";
+import {
+  Project,
+  Ticket,
+  TicketPriority,
+  TicketType,
+  User,
+} from "@prisma/client";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -35,9 +41,6 @@ type TicketFormProps = {
   projects: Project[];
   ticket?: Ticket;
 };
-
-const ticketTypes = ["BUG", "TASK", "OTHERS"];
-const ticketPriorities = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
 
 export const TicketForm = ({ projects, ticket }: TicketFormProps) => {
   const [state, action, isPending] = useActionState(upsertTicket, {});
@@ -53,8 +56,8 @@ export const TicketForm = ({ projects, ticket }: TicketFormProps) => {
       projectId: ticket?.projectId ?? "",
       title: ticket?.title ?? "",
       description: ticket?.description ?? "",
-      priority: ticket?.priority ?? "MEDIUM",
-      type: ticket?.type ?? "BUG",
+      priority: ticket?.priority ?? "Medium",
+      type: ticket?.type ?? "Bug",
       assignedToId: ticket?.assignedToId ?? "",
     },
   });
@@ -181,7 +184,7 @@ export const TicketForm = ({ projects, ticket }: TicketFormProps) => {
                   defaultValue={field.value}
                   className="flex"
                 >
-                  {ticketTypes.map((ticket) => (
+                  {Object.values(TicketType).map((ticket) => (
                     <FormItem
                       key={ticket}
                       className="flex space-x-2 space-y-0 items-center text-sm"
@@ -211,7 +214,7 @@ export const TicketForm = ({ projects, ticket }: TicketFormProps) => {
                   defaultValue={field.value}
                   className="flex"
                 >
-                  {ticketPriorities.map((ticket) => (
+                  {Object.values(TicketPriority).map((ticket) => (
                     <FormItem
                       key={ticket}
                       className="flex space-x-2 space-y-0 items-center text-sm"

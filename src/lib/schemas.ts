@@ -1,3 +1,9 @@
+import {
+  ProjectStatus,
+  Role,
+  TicketPriority,
+  TicketType,
+} from "@prisma/client";
 import { z } from "zod";
 
 export const loginFormSchema = z.object({
@@ -9,9 +15,12 @@ export const loginFormSchema = z.object({
 
 export const baseUserFormSchema = z.object({
   id: z.string().optional(),
-  role: z.enum(["ADMIN", "MANAGER", "DEVELOPER", "CONTRIBUTOR", "USER"], {
-    errorMap: () => ({ message: "Please select a role" }),
-  }),
+  role: z.enum(
+    Object.values(Role).map((role) => role) as [string, ...string[]],
+    {
+      errorMap: () => ({ message: "Please select a role" }),
+    }
+  ),
   name: z
     .string()
     .trim()
@@ -76,7 +85,9 @@ export const editUserFormSchema = baseUserFormSchema
     confirmPassword: z.string().optional(),
   });
 
-const projectStatus = z.enum(["ONGOING", "CLOSED", "OVERDUE"]);
+const projectStatus = z.enum(
+  Object.values(ProjectStatus).map((status) => status) as [string, ...string[]]
+);
 
 export const projectFormSchema = z.object({
   id: z.string().optional(),
@@ -98,9 +109,12 @@ export const projectFormSchema = z.object({
   status: projectStatus.optional(),
 });
 
-// const TicketStatusEnum = z.enum(["OPEN", "IN_PROGRESS", "CLOSED"]);
-const TicketPriorityEnum = z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]);
-const TicketTypeEnum = z.enum(["BUG", "TASK", "OTHERS"]);
+const TicketPriorityEnum = z.enum(
+  Object.values(TicketPriority).map((prio) => prio) as [string, ...string[]]
+);
+const TicketTypeEnum = z.enum(
+  Object.values(TicketType).map((type) => type) as [string, ...string[]]
+);
 
 export const ticketFormSchema = z.object({
   id: z.string().optional(),
@@ -110,7 +124,7 @@ export const ticketFormSchema = z.object({
     .string()
     .min(1, "Description is required")
     .max(150, "Description is too long"),
-  type: TicketTypeEnum.default("BUG"),
-  priority: TicketPriorityEnum.default("MEDIUM"),
+  type: TicketTypeEnum.default("Bug"),
+  priority: TicketPriorityEnum.default("Medium"),
   assignedToId: z.string().optional(),
 });

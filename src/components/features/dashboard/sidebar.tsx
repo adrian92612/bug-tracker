@@ -39,7 +39,7 @@ const SideBarLinks = () => {
   const pathname = usePathname();
   const role = useUserRole();
   const filteredLinks =
-    role !== "ADMIN"
+    role !== "Admin"
       ? links.filter((link) => link.label !== "User Management")
       : links;
 

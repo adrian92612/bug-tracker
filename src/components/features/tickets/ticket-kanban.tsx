@@ -1,6 +1,6 @@
 "use client";
 
-import { Project, Ticket } from "@prisma/client";
+import { Project, Ticket, TicketStatus } from "@prisma/client";
 import { useEffect, useState } from "react";
 import { TicketKanbanColumn } from "./ticket-kanban-column";
 import {
@@ -31,12 +31,12 @@ type TicketListProps = {
 };
 
 export type TicketColumn = {
-  id: "OPEN" | "IN_PROGRESS" | "IN_REVIEW" | "RESOLVED" | "CLOSED";
+  id: TicketStatus;
 };
 
 export type KanbanTicket = {
   id: string;
-  columnId: "OPEN" | "IN_PROGRESS" | "IN_REVIEW" | "RESOLVED" | "CLOSED";
+  columnId: TicketStatus;
   data: {
     ticket: Ticket;
   };
@@ -44,19 +44,19 @@ export type KanbanTicket = {
 
 const ticketColumns: TicketColumn[] = [
   {
-    id: "OPEN",
+    id: "Open",
   },
   {
-    id: "IN_PROGRESS",
+    id: "In_Progress",
   },
   {
-    id: "RESOLVED",
+    id: "Resolved",
   },
   {
-    id: "IN_REVIEW",
+    id: "In_Review",
   },
   {
-    id: "CLOSED",
+    id: "Closed",
   },
 ];
 

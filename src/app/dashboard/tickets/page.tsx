@@ -12,14 +12,12 @@ const TicketsPage = async () => {
   const session = await auth();
   const userId = session?.user.id;
   const userRole = session?.user.role;
-  const isAdmin = userRole === "ADMIN";
+  const isAdmin = userRole === "Admin";
 
   const [projects, tickets] = await Promise.all([
     getProjectsForTicketForm(),
     getTickets(isAdmin ? undefined : userId),
   ]);
-  console.log(userId);
-  console.log(tickets.length);
 
   return (
     <div>
