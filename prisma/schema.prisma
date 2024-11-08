@@ -21,7 +21,7 @@ model User {
   emailVerified DateTime?
   image         String?
   imagePublicId String?
-  role          Role      @default(USER)
+  role          Role      @default(None)
 
   // Projects the user owns
   ownedProjects Project[] @relation("ProjectOwner")
@@ -53,7 +53,7 @@ model Project {
   owner       User          @relation("ProjectOwner", fields: [ownerId], references: [id])
   ownerId     String
   deadline    DateTime
-  status      ProjectStatus @default(ONGOING)
+  status      ProjectStatus @default(Ongoing)
 
   // Users working on the project
   members ProjectAssignment[]
@@ -69,9 +69,9 @@ model Ticket {
   id          String         @id
   title       String
   description String
-  status      TicketStatus   @default(OPEN)
-  priority    TicketPriority @default(MEDIUM)
-  type        TicketType     @default(BUG)
+  status      TicketStatus   @default(Open)
+  priority    TicketPriority @default(Medium)
+  type        TicketType     @default(Bug)
 
   project   Project @relation(fields: [projectId], references: [id])
   projectId String
@@ -109,38 +109,38 @@ model TicketAssignment {
 }
 
 enum ProjectStatus {
-  ONGOING
-  CLOSED
-  OVERDUE
+  Ongoing
+  Closed
+  Overdue
 }
 
 enum Role {
-  ADMIN
-  MANAGER
-  DEVELOPER
-  CONTRIBUTOR
-  USER
+  Admin
+  Manager
+  Developer
+  Contributor
+  None
 }
 
 enum TicketStatus {
-  OPEN
-  IN_PROGRESS
-  IN_REVIEW
-  RESOLVED
-  CLOSED
+  Open
+  In_Progress
+  In_Review
+  Resolved
+  Closed
 }
 
 enum TicketPriority {
-  LOW
-  MEDIUM
-  HIGH
-  CRITICAL
+  Low
+  Medium
+  High
+  Critical
 }
 
 enum TicketType {
-  BUG
-  TASK
-  OTHERS
+  Bug
+  Task
+  Others
 }
 
 model Account {
