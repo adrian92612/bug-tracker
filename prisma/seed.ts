@@ -134,7 +134,7 @@ async function main() {
               status: ticket.status,
               priority: ticket.priority,
               projectId: createdProject.id,
-              createdById: manager1!.id,
+              createdById: manager!.id,
               assignedToId: getRandomDeveloper(developers).id,
             },
           });
