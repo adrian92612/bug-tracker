@@ -1,5 +1,6 @@
+import { ForbiddenPage } from "@/components/features/forbidden";
 import { getTicket, getTicketMembers } from "@/lib/actions/ticket-actions";
-import { getUserId } from "@/lib/actions/user-actions";
+import { getSessionInfo } from "@/lib/actions/user-actions";
 
 type TicketDetailsPageProps = {
   params: {
@@ -12,14 +13,20 @@ const TicketDetailsPage = async ({ params }: TicketDetailsPageProps) => {
     getTicket(params.id),
     getTicketMembers(params.id),
   ]);
-  const id = await getUserId();
+  if (!ticket) return <div>No Ticket Found</div>;
 
-  console.log(id, ticket, ticketMembers);
+  const { userId } = await getSessionInfo();
+  const isInTicket =
+    ticket.assignedToId === userId ||
+    ticket.createdById === userId ||
+    ticketMembers.some((member) => member.id === userId);
+
+  if (!isInTicket) return <ForbiddenPage />;
 
   return (
     <div>
       TicketDetailsPage
-      <div>{id}</div>
+      <div>{userId}</div>
       <div>{JSON.stringify(ticket)}</div>
       {JSON.stringify(ticketMembers)}
     </div>

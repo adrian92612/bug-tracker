@@ -7,5 +7,5 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const isAdminOrManager = (role: Role): boolean => {
-  return role === "ADMIN" || role === "MANAGER";
+  return role === "Admin" || role === "Manager";
 };

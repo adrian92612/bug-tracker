@@ -236,7 +236,7 @@ export const changeProjectStatus = async (
 
       // Step 2: Determine status based on deadline
       const updatedStatus =
-        currentDate > project.deadline ? ProjectStatus.OVERDUE : status;
+        currentDate > project.deadline ? ProjectStatus.Overdue : status;
 
       // Step 3: Update project status
       await tx.project.update({

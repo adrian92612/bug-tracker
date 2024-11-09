@@ -9,14 +9,17 @@ import { genSalt, hashSync } from "bcrypt-ts";
 import { createId } from "@paralleldrive/cuid2";
 import { revalidatePath } from "next/cache";
 
-export const getUserId = async (): Promise<string | undefined> => {
-  const session = await auth();
-  return session?.user?.id;
+type SessionInfo = {
+  userId: string | undefined;
+  userRole: Role | undefined;
 };
 
-export const getUserRole = async (): Promise<Role> => {
+export const getSessionInfo = async (): Promise<SessionInfo> => {
   const session = await auth();
-  return session?.user.role;
+  return {
+    userId: session?.user.id,
+    userRole: session?.user.role,
+  };
 };
 
 export const getUser = async (id?: string): Promise<User | null> => {
@@ -26,7 +29,7 @@ export const getUser = async (id?: string): Promise<User | null> => {
         where: { id: id },
       });
     } else {
-      const userId = await getUserId();
+      const { userId } = await getSessionInfo();
       return await prisma.user.findUnique({
         where: { id: userId },
       });
@@ -75,7 +78,7 @@ export const upsertUser = async (
         where: { id },
         data: {
           name,
-          role,
+          role: role as Role,
         },
       });
     } else {
@@ -97,7 +100,7 @@ export const upsertUser = async (
       await prisma.user.create({
         data: {
           id: createId(),
-          role,
+          role: role as Role,
           email: email!,
           name,
           password: hashedPassword,

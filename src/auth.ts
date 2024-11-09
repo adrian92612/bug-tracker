@@ -25,7 +25,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         emailVerified: user.emailVerified,
         name: user.name ?? "Anonymous User",
         image: user.image,
-        role: Role.USER,
+        role: Role.None,
       };
 
       return await prisma.user.create({ data });
@@ -42,7 +42,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       const isOnProtectedPage = pathname.startsWith("/dashboard");
 
       if (isLoggedIn && redirectIfLoggedIn.includes(pathname)) {
-        return Response.redirect(new URL("/dashboard", nextUrl));
+        return Response.redirect(new URL("/dashboard/overview", nextUrl));
       }
       if (!isLoggedIn && isOnProtectedPage) {
         return Response.redirect(new URL("/login", nextUrl));
@@ -65,8 +65,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       // session.user = { id: token.id as string } as AdapterUser & { id: string };
       session.user = {
-        id: token.id as string,
-        role: token.role as string,
+        id: token.id,
+        role: token.role,
       };
       return session;
     },

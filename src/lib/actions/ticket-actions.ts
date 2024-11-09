@@ -1,11 +1,18 @@
 "use server";
 import { FormResponse } from "./auth-actions";
-import { Project, Ticket, TicketStatus, User } from "@prisma/client";
+import {
+  Project,
+  Ticket,
+  TicketPriority,
+  TicketStatus,
+  TicketType,
+  User,
+} from "@prisma/client";
 import { prisma } from "../../../prisma/prisma";
 import { ticketFormSchema } from "../schemas";
 import { createId } from "@paralleldrive/cuid2";
-import { getUserId } from "./user-actions";
 import { revalidatePath } from "next/cache";
+import { getSessionInfo } from "./user-actions";
 
 export const getAllTickets = async (): Promise<Ticket[]> => {
   try {
@@ -101,13 +108,13 @@ export const upsertTicket = async (
           projectId,
           title,
           description,
-          type,
-          priority,
+          type: type as TicketType,
+          priority: priority as TicketPriority,
           assignedToId,
         },
       });
     } else {
-      const userId = await getUserId();
+      const { userId } = await getSessionInfo();
       if (!userId) throw new Error("User Id not found");
       await prisma.ticket.create({
         data: {
@@ -115,8 +122,8 @@ export const upsertTicket = async (
           projectId,
           title,
           description,
-          type,
-          priority,
+          type: type as TicketType,
+          priority: priority as TicketPriority,
           createdById: userId,
           assignedToId,
         },
